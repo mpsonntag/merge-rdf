@@ -21,6 +21,7 @@ package org.g_node;
 public class App {
     /**
      * Main method of the merge-rdf framework.
+     * @param args Command line input arguments.
      */
     public static void main(final String[] args) {
         System.out.println("Hurra die Gams!");
