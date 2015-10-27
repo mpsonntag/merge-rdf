@@ -1,0 +1,22 @@
+language: java
+
+branches:
+  only:
+  - master
+
+before_install:
+  - sudo apt-get update -qq
+  - sudo apt-get install --only-upgrade -y oracle-java8-installer
+
+jdk:
+  - oraclejdk8
+
+before_script:
+  - mvn clean test jacoco:report coveralls:jacoco
+  - mvn checkstyle:check
+  - mvn findbugs:check
+  - mvn -Dpmd.printFailingErrors=true pmd:check
+
+notifications:
+  email: false
+
