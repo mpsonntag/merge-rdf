@@ -33,13 +33,25 @@ public class App {
     /**
      * Main method of the merge-rdf framework.
      * @param args Command line input arguments.
+     * @return return -1 if an error occurred, 0 otherwise.
      */
-    public static void main(final String[] args) {
-        // TODO check how to handle dynamic logfile name
-        final String currDateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"));
-        App.LOGGER.info(
-                String.join("", currDateTime, ", Starting merge RDF resources logfile.")
-        );
+    public static int main(final String[] args) {
+
+        int retVal = 0;
+
+        try {
+            // TODO check how to handle dynamic logfile name
+            final String currDateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"));
+            App.LOGGER.info(
+                    String.join("", currDateTime, ", Starting merge RDF resources logfile.")
+            );
+
+        } catch (Exception e) {
+            App.LOGGER.error(e.getMessage(), e.fillInStackTrace());
+            retVal = -1;
+        }
+
+        return retVal;
     }
 
 }
