@@ -10,9 +10,16 @@
 
 package org.g_node;
 
+import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.ModelFactory;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-
+import org.apache.jena.riot.RDFDataMgr;
+import org.apache.jena.riot.RDFFormat;
 import org.apache.log4j.Logger;
 
 /**
@@ -42,6 +49,30 @@ public class App {
         App.LOGGER.info(
                 String.join("", currDateTime, ", Starting merge RDF resources logfile.")
         );
+
+        final String mainPath = "/home/msonntag/work/spielwiese/KayRDF/";
+
+        final Model mainModel = RDFDataMgr.loadModel(String.join("", mainPath, "test_merge_small_01.ttl"));
+        final Model addModel = RDFDataMgr.loadModel(String.join("", mainPath, "test_merge_small_02.ttl"));
+
+        final Model mergeModel = ModelFactory.createDefaultModel();
+        mergeModel.add(mainModel);
+        mergeModel.add(addModel);
+
+        final File file = new File(String.join("", mainPath, "test_merge_out.ttl"));
+
+        try {
+            final FileOutputStream fos = new FileOutputStream(file);
+            try {
+                RDFDataMgr.write(fos, mergeModel, RDFFormat.TURTLE_PRETTY);
+                fos.close();
+            } catch (IOException ioExc) {
+                ioExc.printStackTrace();
+            }
+        } catch (FileNotFoundException exc) {
+            exc.printStackTrace();
+        }
+
     }
 
 }
