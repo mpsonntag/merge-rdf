@@ -12,6 +12,11 @@ package org.g_node;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.rdf.model.NodeIterator;
+import com.hp.hpl.jena.rdf.model.RDFNode;
+import com.hp.hpl.jena.rdf.model.Statement;
+import com.hp.hpl.jena.rdf.model.StmtIterator;
+import com.hp.hpl.jena.vocabulary.RDF;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -50,37 +55,65 @@ public class App {
                 String.join("", currDateTime, ", Starting merge RDF resources logfile.")
         );
 
+        final RDFFormat outFormat = RDFFormat.TURTLE_PRETTY;
+
         final String mainPath = "/home/msonntag/work/spielwiese/KayRDF/";
+        //final String mainPath = "D:\\Software\\Crawler\\";
+
+        final String mainFileName = String.join("", mainPath, "Labbook_testfile_merge_test_01_out.ttl");
+        final String addFileName = String.join("", mainPath, "Labbook_testfile_merge_test_01_overlap_out.ttl");
+        final String outFileName = String.join("", mainPath, "test_merge_out.ttl");
+
 /*
-        final Model mainModel = RDFDataMgr.loadModel(String.join("", mainPath, "Labbook_testfile_merge_test_01_out.ttl"));
-        final Model addModel = RDFDataMgr.loadModel(String.join("", mainPath, "Labbook_testfile_merge_test_01_overlap_out.ttl"));
-        mainModel.removeNsPrefix("http://g-node.org/orcid/0000-0003-4857-1083/lkt/home/msonntag/work/spielwiese/KayRDF/Labbook_testfile_merge_test_01_out.ttl/");
-        addModel.removeNsPrefix("http://g-node.org/orcid/0000-0003-4857-1083/lkt/home/msonntag/work/spielwiese/KayRDF/Labbook_testfile_merge_test_01_overlap_out.ttl/");
+        final String mainFileName = String.join("", mainPath, "Labbook_testfile_merge_test_01_out.ttl");
+        final String addFileName = String.join("", mainPath, "Labbook_testfile_merge_test_01_overlap_out.ttl");
+        final String outFileName = String.join("", mainPath, "test_merge_out.ttl");
 
-        final Model mergeModel = ModelFactory.createDefaultModel();
-        mergeModel.add(mainModel);
-        mergeModel.add(addModel);
-        saveModelToFile(mergeModel, String.join("", mainPath, "test_merge_out.ttl"), RDFFormat.TURTLE_PRETTY);
+        final String mainFileName = String.join("", mainPath, "Labbook_testfile_merge_test_01_checkNS.ttl");
+        final String addFileName = String.join("", mainPath, "Labbook_testfile_merge_test_01_overlap_checkNS.ttl");
+        final String outFileName = String.join("", mainPath, "test_merge_checkNS.ttl");
 
-        final Model intersectModel = mainModel.intersection(addModel);
-        saveModelToFile(intersectModel, String.join("", mainPath, "test_insersect_out.ttl"), RDFFormat.TURTLE_PRETTY);
+        final String mainFileName = String.join("", mainPath, "Labbook_testfile_merge_test_01_checkNS.ttl");
+        final String addFileName = String.join("", mainPath, "Labbook_testfile_merge_test_01_overlap_checkNS.ttl");
+        final String outFileName = String.join("", mainPath, "test_merge_checkNS.ttl");
 
-        final Model diffModel = mainModel.difference(addModel);
-        saveModelToFile(diffModel, String.join("", mainPath, "test_diff_out.ttl"), RDFFormat.TURTLE_PRETTY);
+        final String mainFileName = String.join("", mainPath, "Labbook_testfile_min_out.ttl");
+        final String addFileName = String.join("", mainPath, "Labbook_testfile_min_ol_out.ttl");
+        final String outFileName = String.join("", mainPath, "test_merge_out.ttl");
 */
 
-        final Model mainModel = RDFDataMgr.loadModel(String.join("", mainPath, "Labbook_testfile_merge_test_01_checkNS.ttl"));
-        final Model addModel = RDFDataMgr.loadModel(String.join("", mainPath, "Labbook_testfile_merge_test_01_overlap_checkNS.ttl"));
-
+        final Model mainModel = RDFDataMgr.loadModel(mainFileName);
+        final Model addModel = RDFDataMgr.loadModel(addFileName);
         final Model mergeModel = ModelFactory.createDefaultModel();
+
+        // merge and save models
         mergeModel.add(mainModel);
         mergeModel.add(addModel);
-        saveModelToFile(mergeModel, String.join("", mainPath, "test_merge_checkNS.ttl"), RDFFormat.TURTLE_PRETTY);
+        saveModelToFile(mergeModel, outFileName, outFormat);
 
+        // determine intersection and difference of the two models.
+        final Model intersectModel = mainModel.intersection(addModel);
+        final String intersectOutFile = String.join("", mainPath, "test_insersect_out.ttl");
+        saveModelToFile(intersectModel, intersectOutFile, outFormat);
 
+        final Model diffModel = mainModel.difference(addModel);
+        final String diffOutFile = String.join("", mainPath, "test_diff_out.ttl");
+        saveModelToFile(diffModel, diffOutFile, outFormat);
+
+        walkResources(addModel);
+
+        printQuery(addModel);
+
+        constructQuery(addModel);
     }
 
-    private static void saveModelToFile(Model m, String fileName, RDFFormat format) {
+    /**
+     * Helper method saving an RDF model to a file in a specified RDF format.
+     * @param m Model that's supposed to be saved.
+     * @param fileName Path and Name of the output file.
+     * @param format Specified {@link RDFFormat} of the output file.
+     */
+    private static void saveModelToFile(final Model m, final String fileName, final RDFFormat format) {
         final File file = new File(fileName);
 
         try {
@@ -93,6 +126,105 @@ public class App {
             }
         } catch (FileNotFoundException exc) {
             exc.printStackTrace();
+        }
+    }
+
+    /**
+     * Prototype method - walk through existing resources of a model and print the content.
+     * @param m RDF {@link Model} from which the resources are printed.
+     */
+    private static void walkResources(final Model m) {
+        m.listObjects().forEachRemaining(o -> {
+                if (o.isURIResource() && o.asResource().listProperties().hasNext()) {
+                    System.out.println(
+                            String.join("",
+                                    "URI Res: ", o.toString(), " (",
+                                    o.asResource().getProperty(RDF.type).getObject().toString(), ")")
+                    );
+
+                    o.asResource().listProperties().forEachRemaining(c -> {
+                            if (c.getObject().isLiteral()) {
+                                System.out.println(
+                                        String.join("",
+                                                "\t has Literal: ", c.getPredicate().toString(),
+                                                " ", c.getObject().toString())
+                                );
+
+                            } else {
+                                System.out.println(
+                                        String.join("",
+                                                "\t has Resource: ", c.getPredicate().toString(),
+                                                " ", c.getObject().toString())
+                                );
+                            }
+                        });
+                } else if (o.isResource() && o.isAnon()) {
+                    System.out.println(String.join("", "Anon Resource: ", o.toString()));
+                }
+            });
+    }
+
+    /**
+     * Prototype method - print queries for all resources containing literals.
+     * @param m RDF {@link Model} from which the queries are extracted.
+     */
+    private static void printQuery(final Model m) {
+        m.listObjects().forEachRemaining(o -> {
+                if (o.isURIResource() && o.asResource().listProperties().hasNext()) {
+                    System.out.println("\nSELECT * WHERE {");
+                    System.out.println(
+                            String.join("?node ", RDF.type.toString(),
+                                    " ", o.asResource().getProperty(RDF.type).getObject().toString(), " ."));
+
+                    o.asResource().listProperties().forEachRemaining(c -> {
+                            if (c.getObject().isLiteral()) {
+                                System.out.println(
+                                        String.join("", "?node ", c.getPredicate().toString(),
+                                                " ", c.getObject().toString(), " .")
+                                );
+                            }
+                        });
+                    System.out.println("}");
+                }
+            });
+    }
+
+    /**
+     * Prototype method - construct queries for all resources containing literals.
+     * @param m RDF {@link Model} from which the queries are extracted.
+     */
+    private static void constructQuery(final Model m) {
+        final NodeIterator it = m.listObjects();
+
+        while (it.hasNext()) {
+
+            final RDFNode o = it.next();
+
+            String currQ = "";
+
+            if (o.isURIResource() && o.asResource().listProperties().hasNext()
+                    && o.asResource().hasProperty(RDF.type)) {
+
+                currQ = "SELECT ?node WHERE {\n";
+                currQ += String.join("", "\t?node ",
+                        RDF.type.toString(), " ",
+                        o.asResource().getProperty(RDF.type).getObject().toString(),
+                        " .\n");
+
+                final StmtIterator pIt = o.asResource().listProperties();
+
+                while (pIt.hasNext()) {
+                    final Statement c = pIt.next();
+                    if (c.getObject().isLiteral()) {
+                        currQ = String.join("", currQ, "\t?node ",
+                                c.getPredicate().toString(), " ",
+                                c.getObject().toString(), " .\n");
+                    }
+                }
+                currQ += "}";
+
+                System.out.println(String.join("", "Query: ", currQ));
+            }
         }
     }
 
