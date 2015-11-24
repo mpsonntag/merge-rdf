@@ -51,20 +51,42 @@ public class App {
         );
 
         final String mainPath = "/home/msonntag/work/spielwiese/KayRDF/";
-
-        final Model mainModel = RDFDataMgr.loadModel(String.join("", mainPath, "test_merge_small_01.ttl"));
-        final Model addModel = RDFDataMgr.loadModel(String.join("", mainPath, "test_merge_small_02.ttl"));
+/*
+        final Model mainModel = RDFDataMgr.loadModel(String.join("", mainPath, "Labbook_testfile_merge_test_01_out.ttl"));
+        final Model addModel = RDFDataMgr.loadModel(String.join("", mainPath, "Labbook_testfile_merge_test_01_overlap_out.ttl"));
+        mainModel.removeNsPrefix("http://g-node.org/orcid/0000-0003-4857-1083/lkt/home/msonntag/work/spielwiese/KayRDF/Labbook_testfile_merge_test_01_out.ttl/");
+        addModel.removeNsPrefix("http://g-node.org/orcid/0000-0003-4857-1083/lkt/home/msonntag/work/spielwiese/KayRDF/Labbook_testfile_merge_test_01_overlap_out.ttl/");
 
         final Model mergeModel = ModelFactory.createDefaultModel();
         mergeModel.add(mainModel);
         mergeModel.add(addModel);
+        saveModelToFile(mergeModel, String.join("", mainPath, "test_merge_out.ttl"), RDFFormat.TURTLE_PRETTY);
 
-        final File file = new File(String.join("", mainPath, "test_merge_out.ttl"));
+        final Model intersectModel = mainModel.intersection(addModel);
+        saveModelToFile(intersectModel, String.join("", mainPath, "test_insersect_out.ttl"), RDFFormat.TURTLE_PRETTY);
+
+        final Model diffModel = mainModel.difference(addModel);
+        saveModelToFile(diffModel, String.join("", mainPath, "test_diff_out.ttl"), RDFFormat.TURTLE_PRETTY);
+*/
+
+        final Model mainModel = RDFDataMgr.loadModel(String.join("", mainPath, "Labbook_testfile_merge_test_01_checkNS.ttl"));
+        final Model addModel = RDFDataMgr.loadModel(String.join("", mainPath, "Labbook_testfile_merge_test_01_overlap_checkNS.ttl"));
+
+        final Model mergeModel = ModelFactory.createDefaultModel();
+        mergeModel.add(mainModel);
+        mergeModel.add(addModel);
+        saveModelToFile(mergeModel, String.join("", mainPath, "test_merge_checkNS.ttl"), RDFFormat.TURTLE_PRETTY);
+
+
+    }
+
+    private static void saveModelToFile(Model m, String fileName, RDFFormat format) {
+        final File file = new File(fileName);
 
         try {
             final FileOutputStream fos = new FileOutputStream(file);
             try {
-                RDFDataMgr.write(fos, mergeModel, RDFFormat.TURTLE_PRETTY);
+                RDFDataMgr.write(fos, m, format);
                 fos.close();
             } catch (IOException ioExc) {
                 ioExc.printStackTrace();
@@ -72,7 +94,6 @@ public class App {
         } catch (FileNotFoundException exc) {
             exc.printStackTrace();
         }
-
     }
 
 }
