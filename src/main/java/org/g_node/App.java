@@ -13,7 +13,11 @@ package org.g_node;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.NodeIterator;
+import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.RDFNode;
+import com.hp.hpl.jena.rdf.model.ResIterator;
+import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.rdf.model.ResourceFactory;
 import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.vocabulary.RDF;
@@ -26,9 +30,11 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import javax.xml.bind.DatatypeConverter;
-
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFFormat;
@@ -50,7 +56,7 @@ public class App {
     private static final Logger LOGGER = Logger.getLogger(App.class.getName());
 
     /**
-     * Main method of the merge-rdf framework.
+ * Main method of the merge-rdf framework.
      * @param args Command line input arguments.
      */
     public static void main(final String[] args) {
@@ -66,24 +72,23 @@ public class App {
 
         final String mainPath = "/home/msonntag/work/spielwiese/KayRDF/";
         //final String mainPath = "D:\\Software\\Crawler\\";
-
-        final String mainFileName = String.join("", mainPath, "Labbook_testfile_merge_test_01_out.ttl");
-        final String addFileName = String.join("", mainPath, "Labbook_testfile_merge_test_01_overlap_out.ttl");
-        final String outFileName = String.join("", mainPath, "test_merge_out.ttl");
-
 /*
         final String mainFileName = String.join("", mainPath, "Labbook_testfile_merge_test_01_out.ttl");
         final String addFileName = String.join("", mainPath, "Labbook_testfile_merge_test_01_overlap_out.ttl");
         final String outFileName = String.join("", mainPath, "test_merge_out.ttl");
 
-        final String mainFileName = String.join("", mainPath, "Labbook_testfile_merge_test_01_checkNS.ttl");
-        final String addFileName = String.join("", mainPath, "Labbook_testfile_merge_test_01_overlap_checkNS.ttl");
-        final String outFileName = String.join("", mainPath, "test_merge_checkNS.ttl");
+        final String mainFileName = String.join("", mainPath, "Labbook_testfile_merge_test_01_out.ttl");
+        final String addFileName = String.join("", mainPath, "Labbook_testfile_merge_test_01_overlap_out.ttl");
+        final String outFileName = String.join("", mainPath, "test_merge_out.ttl");
 
         final String mainFileName = String.join("", mainPath, "Labbook_testfile_merge_test_01_checkNS.ttl");
         final String addFileName = String.join("", mainPath, "Labbook_testfile_merge_test_01_overlap_checkNS.ttl");
         final String outFileName = String.join("", mainPath, "test_merge_checkNS.ttl");
-
+*/
+        final String mainFileName = String.join("", mainPath, "Labbook_testfile_merge_test_01_checkNS.ttl");
+        final String addFileName = String.join("", mainPath, "Labbook_testfile_merge_test_01_overlap_checkNS.ttl");
+        final String outFileName = String.join("", mainPath, "test_merge_checkNS.ttl");
+/*
         final String mainFileName = String.join("", mainPath, "Labbook_testfile_min_out.ttl");
         final String addFileName = String.join("", mainPath, "Labbook_testfile_min_ol_out.ttl");
         final String outFileName = String.join("", mainPath, "test_merge_out.ttl");
@@ -93,11 +98,17 @@ public class App {
         final Model addModel = RDFDataMgr.loadModel(addFileName);
         final Model mergeModel = ModelFactory.createDefaultModel();
 
+        mergeModel.setNsPrefixes(mainModel.getNsPrefixMap());
+
         // merge and save models
         mergeModel.add(mainModel);
         mergeModel.add(addModel);
+
+        removeDuplicateAnonNodes(mergeModel);
+
         saveModelToFile(mergeModel, outFileName, outFormat);
 
+/*
         // determine intersection and difference of the two models.
         final Model intersectModel = mainModel.intersection(addModel);
         final String intersectOutFile = String.join("", mainPath, "test_insersect_out.ttl");
@@ -114,6 +125,8 @@ public class App {
         constructQuery(addModel);
 
         testHashing();
+
+*/
     }
 
     /**
@@ -136,6 +149,53 @@ public class App {
         } catch (FileNotFoundException exc) {
             exc.printStackTrace();
         }
+    }
+
+    /**
+     * Prototype method - find duplicate anon nodes and remove the duplicates from the model.
+     * @param mergeModel Model that's supposed to cleaned from duplicate blank nodes.
+     */
+    private static void removeDuplicateAnonNodes(Model mergeModel) {
+        Property hasWeight = ResourceFactory.createProperty("https://github.com/G-Node/neuro-ontology/", "hasWeight");
+        ResIterator getSubjLogEntries = mergeModel.listResourcesWithProperty(hasWeight);
+        getSubjLogEntries.forEachRemaining(c -> {
+            System.out.println(c.asResource().getURI());
+            if (c.listProperties(hasWeight).toList().size() > 1) {
+                Set<Resource> removeUs = new HashSet<>();
+
+                List<Statement> currBNL = c.listProperties(hasWeight).toList();
+                int idx = 0;
+                while (idx < c.listProperties(hasWeight).toList().size()) {
+                    //Resource currRes = currBNL.get(idx).getObject().asResource();
+                    System.out.println(currBNL.get(idx).getSubject().getLocalName());
+                    System.out.println(currBNL.get(idx).getPredicate().getLocalName());
+                    System.out.println(currBNL.get(idx).getObject().asResource().getId());
+                    idx++;
+                }
+/*
+// layer SubjectLogEntry
+                List<Statement> l = c.listProperties(hasWeight).toList();
+                // check if this somehow works with int streams as well.
+                for (Statement s : l) {
+// layer Anonymous node
+                    System.out.println(
+                            s.getSubject().getLocalName()
+                    );
+                    System.out.println(
+                            s.getObject().asResource().listProperties().toList()
+                    );
+                }
+
+                //System.out.println(Integer.toString(c.listProperties(hasWeight).toList().size()));
+                //c.listProperties(hasWeight).forEachRemaining(d -> System.out.println(d.getObject().asResource().listProperties().));
+*/
+
+            }
+
+        });
+
+
+        // do lkt specific stuff here e.g. removing of double blank node entries.
     }
 
     /**
@@ -209,11 +269,10 @@ public class App {
 
             final RDFNode o = it.next();
 
-            String currQ = "";
-
             if (o.isURIResource() && o.asResource().listProperties().hasNext()
                     && o.asResource().hasProperty(RDF.type)) {
 
+                String currQ;
                 currQ = "SELECT ?node WHERE {\n";
                 currQ += String.join("", "\t?node ",
                         RDF.type.toString(), " ",
@@ -241,7 +300,7 @@ public class App {
      * Prototype method - test various hashing mechanisms.
      */
     private static void testHashing() {
-        final String hashMe = "hurrastring";
+        final String hashMe = "HASH ME";
         final String hashMeResult = "41bc1af4a1782d40a4d3c0fe5396f57d4201f02b1e232e330ea430a642f3d4d0";
 
         // test hashing - java built in
