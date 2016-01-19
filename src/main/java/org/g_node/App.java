@@ -17,8 +17,8 @@ import java.time.format.DateTimeFormatter;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFFormat;
 import org.apache.log4j.Logger;
-import org.g_node.srv.ModelUtils;
 import org.g_node.srv.AppUtils;
+import org.g_node.srv.ModelUtils;
 
 /**
  * Main application class used to parse command line input and pass
@@ -80,6 +80,20 @@ public class App {
 
         mergeModel.setNsPrefixes(mainModel.getNsPrefixMap());
 
+        // to merge stuff:
+        // 1) define main model and add model
+        // 2) iterate through all resources of the add model and check if they are contained within the main model
+        // 3) if a resource is contained within the main model
+        // 3.1) check if the data properties of the add model are contained within the resource of the main model;
+        // if that is the case remove the corresponding data property from the main model.
+        // 3.2) check if the add model and the main model contain a blank node, if yes remove the blank node from the
+        // main model.
+        // 3.3) in theory check, if the main model and the add model both contain object properties, if yes, check
+        // if there is an existing ontology and check if the corresponding class of the object property is allowed
+        // to contain more than one. if this is not the case, remove the object property of the main model. This might
+        // lead to the interesting case of a disconnected resource in the main model, if the corresponding resource
+        // is not further linked by other object properties. In this case removing of this resource might be required.
+
         // merge and save models
         mergeModel.add(mainModel);
         mergeModel.add(addModel);
@@ -88,7 +102,7 @@ public class App {
 
         ModelUtils.saveModelToFile(mergeModel, outFileName, outFormat);
 
-        boolean isActive = false;
+        final boolean isActive = false;
         if (isActive) {
             // determine intersection and difference of the two models.
             final Model intersectModel = mainModel.intersection(addModel);
@@ -99,14 +113,22 @@ public class App {
             final String diffOutFile = String.join("", mainPath, "test_diff_out.ttl");
             ModelUtils.saveModelToFile(diffModel, diffOutFile, outFormat);
 
-            ModelUtils.walkResources(addModel);
-
-            ModelUtils.printQuery(addModel);
-
-            ModelUtils.constructQuery(addModel);
+            queryResources(addModel);
 
             AppUtils.testHashing();
         }
+    }
+
+    /**
+     * Wrapper for prototype query methods.
+     * @param addModel RDF model to query.
+     */
+    private static void queryResources(final Model addModel) {
+        ModelUtils.walkResources(addModel);
+
+        ModelUtils.printQuery(addModel);
+
+        ModelUtils.constructQuery(addModel);
     }
 
 }

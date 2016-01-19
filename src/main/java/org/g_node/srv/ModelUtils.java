@@ -15,7 +15,6 @@ import com.hp.hpl.jena.rdf.model.NodeIterator;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.ResIterator;
-import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
 import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
@@ -24,9 +23,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFFormat;
 
@@ -62,48 +59,49 @@ public final class ModelUtils {
      * Prototype method - find duplicate anon nodes and remove the duplicates from the model.
      * @param mergeModel Model that's supposed to cleaned from duplicate blank nodes.
      */
-    public static void removeDuplicateAnonNodes(Model mergeModel) {
+    public static void removeDuplicateAnonNodes(final Model mergeModel) {
         // Handling just the hasWeight anonNodes for now to see how to deal with duplicate
         // anonymous nodes.
-        Property hasWeight = ResourceFactory.createProperty("https://github.com/G-Node/neuro-ontology/", "hasWeight");
+        final Property hasWeight = ResourceFactory
+                .createProperty("https://github.com/G-Node/neuro-ontology/", "hasWeight");
 
-        ResIterator getSubjLogEntries = mergeModel.listResourcesWithProperty(hasWeight);
+        final ResIterator getSubjLogEntries = mergeModel.listResourcesWithProperty(hasWeight);
         getSubjLogEntries.forEachRemaining(c -> {
-            System.out.println(c.asResource().getURI());
-            if (c.listProperties(hasWeight).toList().size() > 1) {
-                Set<Resource> removeUs = new HashSet<>();
+                System.out.println(c.asResource().getURI());
+                if (c.listProperties(hasWeight).toList().size() > 1) {
+                    //Set<Resource> removeUs = new HashSet<>();
 
-                List<Statement> currBNL = c.listProperties(hasWeight).toList();
-                int idx = 0;
-                while (idx < c.listProperties(hasWeight).toList().size()) {
-                    //Resource currRes = currBNL.get(idx).getObject().asResource();
-                    System.out.println(currBNL.get(idx).getSubject().getLocalName());
-                    System.out.println(currBNL.get(idx).getPredicate().getLocalName());
-                    System.out.println(currBNL.get(idx).getObject().asResource().getId());
-                    idx++;
-                }
-/*
-// layer SubjectLogEntry
-                List<Statement> l = c.listProperties(hasWeight).toList();
-                // check if this somehow works with int streams as well.
-                for (Statement s : l) {
-// layer Anonymous node
-                    System.out.println(
-                            s.getSubject().getLocalName()
+                    final List<Statement> currBNL = c.listProperties(hasWeight).toList();
+                    int idx = 0;
+                    while (idx < c.listProperties(hasWeight).toList().size()) {
+                        //Resource currRes = currBNL.get(idx).getObject().asResource();
+                        System.out.println(currBNL.get(idx).getSubject().getLocalName());
+                        System.out.println(currBNL.get(idx).getPredicate().getLocalName());
+                        System.out.println(currBNL.get(idx).getObject().asResource().getId());
+                        idx = idx + 1;
+                    }
+                    /*
+                    // layer SubjectLogEntry
+                    final List<Statement> l = c.listProperties(hasWeight).toList();
+                    // check if this somehow works with int streams as well.
+                    for (Statement s : l) {
+                        // layer Anonymous node
+                        System.out.println(
+                                s.getSubject().getLocalName()
+                        );
+                        System.out.println(
+                                s.getObject().asResource().listProperties().toList()
+                        );
+                    }
+
+                    //System.out.println(Integer.toString(c.listProperties(hasWeight).toList().size()));
+                    //c.listProperties(hasWeight).forEachRemaining(
+                        d -> System.out.println(d.getObject().asResource().listProperties().)
                     );
-                    System.out.println(
-                            s.getObject().asResource().listProperties().toList()
-                    );
+                    */
                 }
 
-                //System.out.println(Integer.toString(c.listProperties(hasWeight).toList().size()));
-                //c.listProperties(hasWeight).forEachRemaining(d -> System.out.println(d.getObject().asResource().listProperties().));
-*/
-
-            }
-
-        });
-
+            });
 
         // do lkt specific stuff here e.g. removing of double blank node entries.
     }
@@ -114,33 +112,33 @@ public final class ModelUtils {
      */
     public static void walkResources(final Model m) {
         m.listObjects().forEachRemaining(o -> {
-            if (o.isURIResource() && o.asResource().listProperties().hasNext()) {
-                System.out.println(
-                        String.join("",
-                                "URI Res: ", o.toString(), " (",
-                                o.asResource().getProperty(RDF.type).getObject().toString(), ")")
-                );
+                if (o.isURIResource() && o.asResource().listProperties().hasNext()) {
+                    System.out.println(
+                            String.join("",
+                                    "URI Res: ", o.toString(), " (",
+                                    o.asResource().getProperty(RDF.type).getObject().toString(), ")")
+                    );
 
-                o.asResource().listProperties().forEachRemaining(c -> {
-                    if (c.getObject().isLiteral()) {
-                        System.out.println(
-                                String.join("",
-                                        "\t has Literal: ", c.getPredicate().toString(),
-                                        " ", c.getObject().toString())
-                        );
+                    o.asResource().listProperties().forEachRemaining(c -> {
+                            if (c.getObject().isLiteral()) {
+                                System.out.println(
+                                        String.join("",
+                                                "\t has Literal: ", c.getPredicate().toString(),
+                                                " ", c.getObject().toString())
+                                );
 
-                    } else {
-                        System.out.println(
-                                String.join("",
-                                        "\t has Resource: ", c.getPredicate().toString(),
-                                        " ", c.getObject().toString())
-                        );
-                    }
-                });
-            } else if (o.isResource() && o.isAnon()) {
-                System.out.println(String.join("", "Anon Resource: ", o.toString()));
-            }
-        });
+                            } else {
+                                System.out.println(
+                                        String.join("",
+                                                "\t has Resource: ", c.getPredicate().toString(),
+                                                " ", c.getObject().toString())
+                                );
+                            }
+                        });
+                } else if (o.isResource() && o.isAnon()) {
+                    System.out.println(String.join("", "Anon Resource: ", o.toString()));
+                }
+            });
     }
 
     /**
@@ -149,23 +147,23 @@ public final class ModelUtils {
      */
     public static void printQuery(final Model m) {
         m.listObjects().forEachRemaining(o -> {
-            if (o.isURIResource() && o.asResource().listProperties().hasNext()) {
-                System.out.println("\nSELECT * WHERE {");
-                System.out.println(
-                        String.join("?node ", RDF.type.toString(),
-                                " ", o.asResource().getProperty(RDF.type).getObject().toString(), " ."));
+                if (o.isURIResource() && o.asResource().listProperties().hasNext()) {
+                    System.out.println("\nSELECT * WHERE {");
+                    System.out.println(
+                            String.join("?node ", RDF.type.toString(),
+                                    " ", o.asResource().getProperty(RDF.type).getObject().toString(), " ."));
 
-                o.asResource().listProperties().forEachRemaining(c -> {
-                    if (c.getObject().isLiteral()) {
-                        System.out.println(
-                                String.join("", "?node ", c.getPredicate().toString(),
-                                        " ", c.getObject().toString(), " .")
-                        );
-                    }
-                });
-                System.out.println("}");
-            }
-        });
+                    o.asResource().listProperties().forEachRemaining(c -> {
+                            if (c.getObject().isLiteral()) {
+                                System.out.println(
+                                        String.join("", "?node ", c.getPredicate().toString(),
+                                                " ", c.getObject().toString(), " .")
+                                );
+                            }
+                        });
+                    System.out.println("}");
+                }
+            });
     }
 
     /**
