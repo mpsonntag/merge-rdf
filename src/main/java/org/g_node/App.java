@@ -52,32 +52,20 @@ public class App {
 
         final String mainPath = "/home/msonntag/work/spielwiese/KayRDF/";
         //final String mainPath = "D:\\Software\\Crawler\\";
-/*
-        final String mainFileName = String.join("", mainPath, "Labbook_testfile_merge_test_01_out.ttl");
-        final String addFileName = String.join("", mainPath, "Labbook_testfile_merge_test_01_overlap_out.ttl");
-        final String outFileName = String.join("", mainPath, "test_merge_out.ttl");
 
-        final String mainFileName = String.join("", mainPath, "Labbook_testfile_merge_test_01_out.ttl");
-        final String addFileName = String.join("", mainPath, "Labbook_testfile_merge_test_01_overlap_out.ttl");
-        final String outFileName = String.join("", mainPath, "test_merge_out.ttl");
-
-        final String mainFileName = String.join("", mainPath, "Labbook_testfile_merge_test_01_checkNS.ttl");
-        final String addFileName = String.join("", mainPath, "Labbook_testfile_merge_test_01_overlap_checkNS.ttl");
+        final String mainFileName = "testFiles/Labbook_testfile_merge_test_01_checkNS.ttl";
+        final String addFileName = "testFiles/Labbook_testfile_merge_test_01_overlap_checkNS.ttl";
         final String outFileName = String.join("", mainPath, "test_merge_checkNS.ttl");
-*/
-        final String mainFileName = String.join("", mainPath, "Labbook_testfile_merge_test_01_checkNS.ttl");
-        final String addFileName = String.join("", mainPath, "Labbook_testfile_merge_test_01_overlap_checkNS.ttl");
-        final String outFileName = String.join("", mainPath, "test_merge_checkNS.ttl");
-/*
-        final String mainFileName = String.join("", mainPath, "Labbook_testfile_min_out.ttl");
-        final String addFileName = String.join("", mainPath, "Labbook_testfile_min_ol_out.ttl");
-        final String outFileName = String.join("", mainPath, "test_merge_out.ttl");
-*/
 
-        final Model mainModel = RDFDataMgr.loadModel(mainFileName);
-        final Model addModel = RDFDataMgr.loadModel(addFileName);
-        final Model mergeModel = ModelFactory.createDefaultModel();
+        final Model mainModel = RDFDataMgr.loadModel(
+                ClassLoader.getSystemClassLoader().getResource(mainFileName).toString()
+        );
+        final Model addModel = RDFDataMgr.loadModel(
+                ClassLoader.getSystemClassLoader().getResource(addFileName).toString()
+        );
+        Model mergeModel = ModelFactory.createDefaultModel();
 
+        // Can be a problem, if the addModel has additional prefixes.
         mergeModel.setNsPrefixes(mainModel.getNsPrefixMap());
 
         // to merge stuff:
@@ -94,41 +82,80 @@ public class App {
         // lead to the interesting case of a disconnected resource in the main model, if the corresponding resource
         // is not further linked by other object properties. In this case removing of this resource might be required.
 
-        // merge and save models
-        mergeModel.add(mainModel);
+        // It seems there is a problem with listing Resources, if a Resource is a top level node.
+        // Top level node is a node that has a URI, references other nodes, but is not referenced
+        // by other nodes. In this case, Apache Jena will not list it as a Resource.
+        // In the use case this is true for the Project Resource which is not referenced by any other node.
+        mergeModel = ModelUtils.resourceInModel(addModel, mainModel);
+
         mergeModel.add(addModel);
-
-        ModelUtils.removeDuplicateAnonNodes(mergeModel);
-
         ModelUtils.saveModelToFile(mergeModel, outFileName, outFormat);
 
         final boolean isActive = false;
         if (isActive) {
-            // determine intersection and difference of the two models.
-            final Model intersectModel = mainModel.intersection(addModel);
-            final String intersectOutFile = String.join("", mainPath, "test_insersect_out.ttl");
-            ModelUtils.saveModelToFile(intersectModel, intersectOutFile, outFormat);
-
-            final Model diffModel = mainModel.difference(addModel);
-            final String diffOutFile = String.join("", mainPath, "test_diff_out.ttl");
-            ModelUtils.saveModelToFile(diffModel, diffOutFile, outFormat);
-
+            testRemoveAnonNodes(mainModel, addModel, mergeModel, outFileName, outFormat);
+            testIntersect(mainModel, addModel, mainPath, outFormat);
+            testDiff(mainModel, addModel, mainPath, outFormat);
             queryResources(addModel);
-
             AppUtils.testHashing();
         }
     }
 
     /**
      * Wrapper for prototype query methods.
-     * @param addModel RDF model to query.
+     * @param currModel RDF model to query.
      */
-    private static void queryResources(final Model addModel) {
-        ModelUtils.walkResources(addModel);
+    private static void queryResources(final Model currModel) {
+        ModelUtils.walkResources(currModel);
+        ModelUtils.printQuery(currModel);
+        ModelUtils.constructQuery(currModel);
+    }
 
-        ModelUtils.printQuery(addModel);
+    /**
+     * Wrapper for prototype remove anonymous nodes methods.
+     * @param mainModel Model containing RDF database information.
+     * @param addModel Model containing RDF to add to the database model.
+     * @param mergeModel Empty model in which to merge DB and add model.
+     * @param outFileName Path and filename to save the output file to.
+     * @param outFormat RDFFormat in which the output file is saved as.
+     */
+    private static void testRemoveAnonNodes(final Model mainModel, final Model addModel, final Model mergeModel,
+                                            final String outFileName, final RDFFormat outFormat) {
+        // merge and save models
+        mergeModel.add(mainModel);
+        mergeModel.add(addModel);
 
-        ModelUtils.constructQuery(addModel);
+        ModelUtils.removeDuplicateAnonNodes(mergeModel);
+        ModelUtils.saveModelToFile(mergeModel, outFileName, outFormat);
+    }
+
+    /**
+     * Wrapper to test Jena Model intersect.
+     * @param mainModel Model containing RDF database information.
+     * @param addModel Model containing RDF to add to the database model.
+     * @param mainPath Path to save the output file to.
+     * @param outFormat RDFFormat in which the output file is saved as.
+     */
+    private static void testIntersect(final Model mainModel, final Model addModel,
+                                      final String mainPath, final RDFFormat outFormat) {
+        // determine intersection and difference of the two models.
+        final Model intersectModel = mainModel.intersection(addModel);
+        final String intersectOutFile = String.join("", mainPath, "test_insersect_out.ttl");
+        ModelUtils.saveModelToFile(intersectModel, intersectOutFile, outFormat);
+    }
+
+    /**
+     * Wrapper to test Jena Model diff.
+     * @param mainModel Model containing RDF database information.
+     * @param addModel Model containing RDF to add to the database model.
+     * @param mainPath Path to save the output file to.
+     * @param outFormat RDFFormat in which the output file is saved as.
+     */
+    private static void testDiff(final Model mainModel, final Model addModel,
+                                 final String mainPath, final RDFFormat outFormat) {
+        final Model diffModel = mainModel.difference(addModel);
+        final String diffOutFile = String.join("", mainPath, "test_diff_out.ttl");
+        ModelUtils.saveModelToFile(diffModel, diffOutFile, outFormat);
     }
 
 }

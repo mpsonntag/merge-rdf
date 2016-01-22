@@ -15,6 +15,7 @@ import com.hp.hpl.jena.rdf.model.NodeIterator;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.ResIterator;
+import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
 import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
@@ -108,10 +109,10 @@ public final class ModelUtils {
 
     /**
      * Prototype method - walk through existing resources of a model and print the content.
-     * @param m RDF {@link Model} from which the resources are printed.
+     * @param currModel RDF {@link Model} from which the resources are printed.
      */
-    public static void walkResources(final Model m) {
-        m.listObjects().forEachRemaining(o -> {
+    public static void walkResources(final Model currModel) {
+        currModel.listObjects().forEachRemaining(o -> {
                 if (o.isURIResource() && o.asResource().listProperties().hasNext()) {
                     System.out.println(
                             String.join("",
@@ -139,6 +140,49 @@ public final class ModelUtils {
                     System.out.println(String.join("", "Anon Resource: ", o.toString()));
                 }
             });
+    }
+
+    /**
+     * Prototype method - walk through existing resources of a model and print the content.
+     * @param currModel RDF {@link Model} from which the resources are printed and checked for in the mainModel.
+     * @param mainModel RDF {@link Model} from which the resources are removed if identical with resources
+     *                  in the currModel.
+     * @return Main model from which identical entries have been removed.
+     */
+    public static Model resourceInModel(final Model currModel, final Model mainModel) {
+        currModel.listObjects().forEachRemaining(o -> {
+                if (o.isURIResource() && o.asResource().listProperties().hasNext()) {
+                    System.out.println(
+                            String.join("", "URI Res: ", o.toString())
+                    );
+                    if (mainModel.containsResource(o.asResource())) {
+                        System.out.println("Curr res is contained in the main model");
+                        final Resource checkRemoveProps = mainModel.getResource(o.asResource().getURI());
+                        final List<Statement> mainProps = checkRemoveProps.listProperties().toList();
+                        mainProps.forEach(c -> System.out.println(c.toString()));
+                        final List<Statement> addProps = o.asResource().listProperties().toList();
+                        System.out.println("\n");
+                        addProps.forEach(c -> System.out.println(c.toString()));
+                        // Problem: Cannot be identical, because the object properties can differ.
+                        System.out.println(
+                                String.join("",
+                                        "currRes: ", o.asResource().getURI(),
+                                        " mainProps length: ", Integer.toString(mainProps.size()),
+                                        " addProps length: ", Integer.toString(addProps.size()),
+                                        " identical: ", Boolean.toString(mainProps.containsAll(addProps)))
+                        );
+
+                        // Problem: removes all properties,
+                        // but Anon Nodes referenced by this will not be removed of course
+                        checkRemoveProps.removeProperties();
+                    }
+                }
+            });
+
+        System.out.println("\n\n");
+        mainModel.listObjects().forEachRemaining(o -> System.out.println(o.toString()));
+
+        return mainModel;
     }
 
     /**
