@@ -143,46 +143,84 @@ public final class ModelUtils {
     }
 
     /**
-     * Prototype method - walk through existing resources of a model and print the content.
-     * @param currModel RDF {@link Model} from which the resources are printed and checked for in the mainModel.
-     * @param mainModel RDF {@link Model} from which the resources are removed if identical with resources
-     *                  in the currModel.
-     * @return Main model from which identical entries have been removed.
+     * Prototype method - walk through existing {@link Resource}s of a model, print the content, check for Resources
+     * identical by URI with another model and remove all {@link Property} and anonymous Nodes
+     * from these identical resources of the second model.
+     * @param addModel RDF {@link Model} from which the Resources are printed and checked for in the removeFromModel.
+     * @param removeFromModel RDF {@link Model} from which the resources are removed if identical with resources
+     *                  in the addModel.
+     * @param removeAnonNodes If true, anonymous nodes that are referenced by properties
+     *                        that are to be removed, are removed as well.
+     * @return The {@link Model} removeFromModel from which all Properties and anonymous Nodes
+     * of {@link Model} addModel identical by URI have been removed.
      */
-    public static Model resourceInModel(final Model currModel, final Model mainModel) {
-        currModel.listObjects().forEachRemaining(o -> {
-                if (o.isURIResource() && o.asResource().listProperties().hasNext()) {
+    public static Model removePropertiesFromModel(final Model addModel, final Model removeFromModel,
+                                                  final boolean removeAnonNodes) {
+        addModel.listObjects().forEachRemaining(o -> {
+                if (o.isURIResource()
+                        && o.asResource().listProperties().hasNext()
+                        && removeFromModel.containsResource(o.asResource())) {
+                    System.out.println(String.join("", "[DEBUG] URI Res: ", o.toString()));
+                    System.out.println("[DEBUG] Curr res is contained in the main model");
+                    final Resource checkRemoveProps = removeFromModel.getResource(o.asResource().getURI());
+                    final List<Statement> mainProps = checkRemoveProps.listProperties().toList();
+                    mainProps.forEach(c -> System.out.println(String.join("", "[DEBUG] ", c.toString())));
+                    final List<Statement> addProps = o.asResource().listProperties().toList();
+                    System.out.println("[DEBUG] \n");
+                    addProps.forEach(c -> System.out.println(String.join("", "[DEBUG] ", c.toString())));
+                    // Problem: Cannot be identical, because the object properties can differ.
                     System.out.println(
-                            String.join("", "URI Res: ", o.toString())
+                            String.join("",
+                                    "[DEBUG] CurrRes: ", o.asResource().getURI(),
+                                    " mainProps length: ", Integer.toString(mainProps.size()),
+                                    " addProps length: ", Integer.toString(addProps.size()),
+                                    " identical: ", Boolean.toString(mainProps.containsAll(addProps)))
                     );
-                    if (mainModel.containsResource(o.asResource())) {
-                        System.out.println("Curr res is contained in the main model");
-                        final Resource checkRemoveProps = mainModel.getResource(o.asResource().getURI());
-                        final List<Statement> mainProps = checkRemoveProps.listProperties().toList();
-                        mainProps.forEach(c -> System.out.println(c.toString()));
-                        final List<Statement> addProps = o.asResource().listProperties().toList();
-                        System.out.println("\n");
-                        addProps.forEach(c -> System.out.println(c.toString()));
-                        // Problem: Cannot be identical, because the object properties can differ.
-                        System.out.println(
-                                String.join("",
-                                        "currRes: ", o.asResource().getURI(),
-                                        " mainProps length: ", Integer.toString(mainProps.size()),
-                                        " addProps length: ", Integer.toString(addProps.size()),
-                                        " identical: ", Boolean.toString(mainProps.containsAll(addProps)))
-                        );
 
-                        // Problem: removes all properties,
-                        // but Anon Nodes referenced by this will not be removed of course
-                        checkRemoveProps.removeProperties();
+                    // Remove anonymous nodes of the current Resource
+                    if (removeAnonNodes) {
+                        removeAnonProperties(checkRemoveProps.listProperties());
                     }
+
+                    checkRemoveProps.removeProperties();
                 }
             });
 
-        System.out.println("\n\n");
-        mainModel.listObjects().forEachRemaining(o -> System.out.println(o.toString()));
+        System.out.println("[DEBUG]\n[DEBUG] List remaining objects:\n");
+        removeFromModel.listObjects().forEachRemaining(
+                o -> System.out.println(String.join("", "[DEBUG] ", o.toString())));
 
-        return mainModel;
+        return removeFromModel;
+    }
+
+    /**
+     * Prototype method to check if a statement has an anonymous node as
+     * an RDF Object and to remove all properties of such an anonymous node
+     * from the corresponding model.
+     * @param checkAnon Iterator containing a list of statements.
+     */
+    private static void removeAnonProperties(final StmtIterator checkAnon) {
+        while (checkAnon.hasNext()) {
+            final Statement currStmt = checkAnon.nextStatement();
+            if (currStmt.getObject().isAnon()) {
+                System.out.println(String.join("", "[DEBUG] Current property |",
+                        currStmt.getPredicate().getLocalName(),
+                        "| of resource ",
+                        currStmt.getSubject().getURI(),
+                        " is anonNode: ",
+                        currStmt.getObject().toString()));
+
+                final Resource currAnonRes = currStmt.getObject().asResource();
+
+                System.out.println(
+                        String.join("", "[DEBUG] ", currAnonRes.toString(),
+                                " has properties: ",
+                                Integer.toString(currAnonRes.listProperties().toList().size()))
+                );
+
+                currAnonRes.removeProperties();
+            }
+        }
     }
 
     /**

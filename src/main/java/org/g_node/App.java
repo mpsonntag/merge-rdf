@@ -55,7 +55,7 @@ public class App {
 
         final String mainFileName = "testFiles/Labbook_testfile_merge_test_01_checkNS.ttl";
         final String addFileName = "testFiles/Labbook_testfile_merge_test_01_overlap_checkNS.ttl";
-        final String outFileName = String.join("", mainPath, "test_merge_checkNS.ttl");
+        final String outFileName = String.join("", mainPath, "curr_out.ttl");
 
         final Model mainModel = RDFDataMgr.loadModel(
                 ClassLoader.getSystemClassLoader().getResource(mainFileName).toString()
@@ -86,7 +86,7 @@ public class App {
         // Top level node is a node that has a URI, references other nodes, but is not referenced
         // by other nodes. In this case, Apache Jena will not list it as a Resource.
         // In the use case this is true for the Project Resource which is not referenced by any other node.
-        mergeModel = ModelUtils.resourceInModel(addModel, mainModel);
+        mergeModel = ModelUtils.removePropertiesFromModel(addModel, mainModel, true);
 
         mergeModel.add(addModel);
         ModelUtils.saveModelToFile(mergeModel, outFileName, outFormat);
