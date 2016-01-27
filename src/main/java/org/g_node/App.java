@@ -107,7 +107,6 @@ public class App {
      */
     private static void queryResources(final Model currModel) {
         ModelUtils.walkResources(currModel);
-        ModelUtils.printQuery(currModel);
         ModelUtils.constructQuery(currModel);
     }
 
