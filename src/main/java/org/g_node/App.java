@@ -14,6 +14,9 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFFormat;
 import org.apache.log4j.Logger;
@@ -35,6 +38,20 @@ public class App {
     private static final Logger LOGGER = Logger.getLogger(App.class.getName());
 
     /**
+     * Available merge mergers with key and description.
+     */
+    private final Map<String, String> mergers;
+
+    /**
+     * Constructor.
+     */
+    App() {
+        this.mergers = new HashMap<>();
+        this.mergers.put("default", "default merge: remove Resources with identical ID from the main model before merge");
+        this.mergers.put("plainmerge", "merge two models without any modifications");
+    }
+
+    /**
      * Main method of the merge-rdf framework.
      * @param args Command line input arguments.
      */
@@ -45,14 +62,33 @@ public class App {
                 String.join("", currDateTime, ", Starting merge RDF resources logfile.")
         );
 
-        runPrototype();
+        final App currApp = new App();
 
+        if (args.length < 1) {
+            currApp.runPrototype();
+        } else if (currApp.mergers.containsKey(args[0])) {
+            System.out.println(
+                    String.join("", "[DEBUG] Parse CLI arguments: ",
+                            Integer.toString(args.length)
+                    )
+            );
+
+            // TODO Implement CLI parser here.
+
+        } else {
+            App.LOGGER.error(
+                    String.join("", "No proper merger selected!",
+                            "\n\t Please use syntax 'java -jar merge-rdf.jar [merger] [options]'",
+                            "\n\t e.g. 'java -jar merge-rdf.jar default -i mergeRDF.ttl -f mainRDF.ttl -o out.ttl'",
+                            "\n\t Currently available mergers: ", currApp.mergers.keySet().toString())
+            );
+        }
     }
 
     /**
      * Setting up input strings for developing the prototype application. Will be removed.
      */
-    private static void runPrototype() {
+    private void runPrototype() {
 
         final String useCase = "default";
 
@@ -75,7 +111,7 @@ public class App {
         final String loadMainFile = ClassLoader.getSystemClassLoader().getResource(mainFileName).toString();
         final String loadAddFile = ClassLoader.getSystemClassLoader().getResource(addFileName).toString();
 
-        run(useCase, loadMainFile, loadAddFile, outFileName, outFormat);
+        this.run(useCase, loadMainFile, loadAddFile, outFileName, outFormat);
     }
 
     /**
@@ -86,7 +122,7 @@ public class App {
      * @param outFileName Path to the output file.
      * @param outFormat RDF format of the output file.
      */
-    private static void run(final String useCase,
+    private void run(final String useCase,
                             final String mainFileName, final String addFileName,
                             final String outFileName, final RDFFormat outFormat) {
 
