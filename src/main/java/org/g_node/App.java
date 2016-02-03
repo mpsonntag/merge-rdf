@@ -53,8 +53,8 @@ public class App {
         final String mainPath = "/home/msonntag/work/spielwiese/KayRDF/";
         //final String mainPath = "D:\\Software\\Crawler\\";
 
-        final String mainFileName = "testFiles/Labbook_testfile_merge_test_01_checkNS.ttl";
-        final String addFileName = "testFiles/Labbook_testfile_merge_test_01_overlap_checkNS.ttl";
+        final String mainFileName = "rdfTestFiles/LKT_merge_test_01a.ttl";
+        final String addFileName = "rdfTestFiles/LKT_merge_test_01b.ttl";
         final String outFileName = String.join("", mainPath, "curr_out.ttl");
 
         final Model mainModel = RDFDataMgr.loadModel(
