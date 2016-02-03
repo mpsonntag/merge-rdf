@@ -35,40 +35,76 @@ public class App {
     private static final Logger LOGGER = Logger.getLogger(App.class.getName());
 
     /**
- * Main method of the merge-rdf framework.
+     * Main method of the merge-rdf framework.
      * @param args Command line input arguments.
      */
     public static void main(final String[] args) {
 
-        // TODO catching plain exceptions not allowed by checkstyle, implement other catches
-        // App.LOGGER.error(e.getMessage(), e.fillInStackTrace());
         final String currDateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"));
         App.LOGGER.info(
                 String.join("", currDateTime, ", Starting merge RDF resources logfile.")
         );
 
-        final RDFFormat outFormat = RDFFormat.TURTLE_PRETTY;
+        runPrototype();
 
-        final String mainPath = "/home/msonntag/work/spielwiese/KayRDF/";
+    }
+
+    /**
+     * Setting up input strings for developing the prototype application. Will be removed.
+     */
+    private static void runPrototype() {
+
+        final String useCase = "default";
 
         final String mainFileName = "rdfTestFiles/LKT_merge_test_01a.ttl";
         final String addFileName = "rdfTestFiles/LKT_merge_test_01b.ttl";
-        final String outFileName = String.join("", mainPath, "curr_out.ttl");
 
-        final Model mainModel = RDFDataMgr.loadModel(
-                ClassLoader.getSystemClassLoader().getResource(mainFileName).toString()
-        );
-        final Model addModel = RDFDataMgr.loadModel(
-                ClassLoader.getSystemClassLoader().getResource(addFileName).toString()
-        );
+        final String outPath = "/home/msonntag/work/spielwiese/KayRDF/";
+        final RDFFormat outFormat = RDFFormat.TURTLE_PRETTY;
+
+        String outFileName;
+
+        if ("default".equals(useCase)) {
+            outFileName = String.join("", outPath, "curr_out.ttl");
+        } else if ("plainmerge".equals(useCase)) {
+            outFileName = String.join("", outPath, "curr_out_merge_only.ttl");
+        } else {
+            outFileName = String.join("", outPath, "tmp.ttl");
+        }
+
+        final String loadMainFile = ClassLoader.getSystemClassLoader().getResource(mainFileName).toString();
+        final String loadAddFile = ClassLoader.getSystemClassLoader().getResource(addFileName).toString();
+
+        run(useCase, loadMainFile, loadAddFile, outFileName, outFormat);
+    }
+
+    /**
+     * Main method to select and execute different merge methods.
+     * @param useCase String containing the selected merge method.
+     * @param mainFileName File name of the main RDF file.
+     * @param addFileName File name of the RDF file that is supposed to be merged with the main RDF file.
+     * @param outFileName Path to the output file.
+     * @param outFormat RDF format of the output file.
+     */
+    private static void run(final String useCase,
+                            final String mainFileName, final String addFileName,
+                            final String outFileName, final RDFFormat outFormat) {
+
+        final Model mainModel = RDFDataMgr.loadModel(mainFileName);
+        final Model addModel = RDFDataMgr.loadModel(addFileName);
+
         Model mergeModel = ModelFactory.createDefaultModel();
 
-        // Can be a problem, if the addModel has additional prefixes.
+        // Can be a problem, if the addModel has differing prefixes.
         mergeModel.setNsPrefixes(mainModel.getNsPrefixMap());
 
-        mergeModel = ModelUtils.removePropertiesFromModel(addModel, mainModel, true);
-
-        mergeModel.add(addModel);
+        if ("default".equals(useCase)) {
+            mergeModel = ModelUtils.removePropertiesFromModel(addModel, mainModel, true);
+            mergeModel.add(addModel);
+        } else if ("plainmerge".equals(useCase)) {
+            mergeModel.add(mainModel);
+            mergeModel.add(addModel);
+        }
         ModelUtils.saveModelToFile(mergeModel, outFileName, outFormat);
     }
 
