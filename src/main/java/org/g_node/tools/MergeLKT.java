@@ -14,10 +14,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Locale;
-
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import org.apache.commons.cli.CommandLine;
@@ -25,6 +22,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.log4j.Logger;
 import org.g_node.MergeTool;
+import org.g_node.srv.AppUtils;
 import org.g_node.srv.CliOptionService;
 import org.g_node.srv.ModelUtils;
 import org.g_node.srv.RDFService;
@@ -89,7 +87,6 @@ public class MergeLKT implements MergeTool {
 
         Model mergeModel = ModelFactory.createDefaultModel();
 
-        // TODO check if importing prefixes of both models causes trouble anywhere.
         mergeModel.setNsPrefixes(mainModel.getNsPrefixMap());
         mergeModel.setNsPrefixes(addModel.getNsPrefixMap());
 
@@ -99,7 +96,7 @@ public class MergeLKT implements MergeTool {
         if (mainFile.equals(outputFile)) {
             final Path mainPath = Paths.get(mainFile);
             final String fileName = mainPath.getFileName().toString();
-            final String ts = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmm"));
+            final String ts = AppUtils.getTimeStamp("yyyyMMddHHmm");
             final String backupName = String.join("", ts, "_backup_", fileName);
             final String backupPath = mainPath.toString().replaceFirst(fileName, backupName);
 
