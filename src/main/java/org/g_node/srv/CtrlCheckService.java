@@ -26,16 +26,16 @@ public final class CtrlCheckService {
     private static final Logger LOGGER = Logger.getLogger(CtrlCheckService.class.getName());
     /**
      * Method checks if a provided file exists, logs the findings accordingly and returns corresponding boolean value.
-     * @param inputFile Path and filename of the file that is supposed to be checked for existence.
+     * @param file Path and filename of the file that is supposed to be checked for existence.
      * @return True in case the file exists, false in case it does not.
      */
-    public static boolean existingInputFile(final String inputFile) {
+    public static boolean existingFile(final String file) {
 
         boolean properFile = true;
-        CtrlCheckService.LOGGER.info("Checking input file...");
-        if (!FileService.checkFile(inputFile)) {
+        CtrlCheckService.LOGGER.info("Checking file...");
+        if (!FileService.checkFile(file)) {
             CtrlCheckService.LOGGER.error(
-                    String.join("", "Input file ", inputFile, " does not exist.")
+                    String.join("", "File ", file, " does not exist.")
             );
             properFile = false;
         }

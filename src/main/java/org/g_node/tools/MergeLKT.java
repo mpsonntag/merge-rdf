@@ -24,6 +24,7 @@ import org.apache.log4j.Logger;
 import org.g_node.MergeTool;
 import org.g_node.srv.AppUtils;
 import org.g_node.srv.CliOptionService;
+import org.g_node.srv.CtrlCheckService;
 import org.g_node.srv.ModelUtils;
 import org.g_node.srv.RDFService;
 
@@ -106,9 +107,24 @@ public class MergeLKT implements MergeTool {
      */
     public final void run(final CommandLine cmd) {
         final String mergeFile = cmd.getOptionValue("i");
+        if (!CtrlCheckService.existingFile(mergeFile)) {
+            return;
+        }
+
         final String mainFile = cmd.getOptionValue("m");
+        if (!CtrlCheckService.existingFile(mainFile)) {
+            return;
+        }
+
         final String outputFormat = cmd.getOptionValue("f", "TTL").toUpperCase(Locale.ENGLISH);
-        final String outputFile = cmd.getOptionValue("o", mainFile);
+        if (!CtrlCheckService.supportedOutputFormat(outputFormat)) {
+            return;
+        }
+
+        String outputFile = cmd.getOptionValue("o", mainFile);
+        if (!outputFile.toLowerCase().endsWith(RDFService.RDF_FORMAT_EXTENSION.get(outputFormat))) {
+            outputFile = String.join("", outputFile, ".", RDFService.RDF_FORMAT_EXTENSION.get(outputFormat));
+        }
 
         final Model mainModel = RDFService.openModelFromFile(mainFile);
         final Model addModel = RDFService.openModelFromFile(mergeFile);
@@ -121,25 +137,40 @@ public class MergeLKT implements MergeTool {
         mergeModel = ModelUtils.removePropertiesFromModel(addModel, mainModel, true);
         mergeModel.add(addModel);
 
-        if (mainFile.equals(outputFile)) {
-            final Path mainPath = Paths.get(mainFile);
-            final String fileName = mainPath.getFileName().toString();
-            final String ts = AppUtils.getTimeStamp("yyyyMMddHHmm");
-            final String backupName = String.join("", ts, "_backup_", fileName);
-            final String backupPath = mainPath.toString().replaceFirst(fileName, backupName);
-
-            try {
-                Files.copy(mainPath, Paths.get(backupPath));
-            } catch (IOException e) {
-                MergeLKT.LOGGER.error(
-                        String.join("", "Error saving backup file '", backupName, "'")
-                );
-                e.printStackTrace();
-            }
+        // TODO test if this conditional works as required and maybe come up with a better solution.
+        // Create backup, if the output file is the same as the main RDF file.
+        if (mainFile.equals(outputFile) && !this.createTimeStampBackupFile(mainFile)) {
+            // End here, if the backup failed.
+            return;
         }
 
         RDFService.saveModelToFile(outputFile, mergeModel, outputFormat);
 
+    }
+
+    /**
+     * Creates a backup file with a timestamp and the string "backup" in its name.
+     * @param file Name of the file that is to be copied.
+     * @return True if the file was successfully created, false, if something failed.
+     */
+    private boolean createTimeStampBackupFile(final String file) {
+        // TODO move this to some service class.
+        final Path mainPath = Paths.get(file);
+        final String fileName = mainPath.getFileName().toString();
+        final String ts = AppUtils.getTimeStamp("yyyyMMddHHmm");
+        final String backupName = String.join("", ts, "_backup_", fileName);
+        final String backupPath = mainPath.toString().replaceFirst(fileName, backupName);
+
+        try {
+            Files.copy(mainPath, Paths.get(backupPath));
+        } catch (IOException e) {
+            MergeLKT.LOGGER.error(
+                    String.join("", "[ERROR ] while saving backup file '", backupName, "'")
+            );
+            e.printStackTrace();
+            return false;
+        }
+        return true;
     }
 
 }
