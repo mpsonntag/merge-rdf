@@ -34,47 +34,6 @@ public final class CliOptionService {
     }
 
     /**
-     * Returns merge RDF file option required to merge a given RDF file with another RDF file from the command line.
-     * Commandline option shorthand will always be "-i" and "-merge-file". This option will always be "required".
-     * @param altDesc Alternative description replacing the default description.
-     * @return Required CLI option for accessing the RDF file that is merged with a second RDF file.
-     */
-    public static Option getMergeFileOpt(final String altDesc) {
-
-        final String defaultDesc = "RDF file that will be merged with a main RDF file.";
-        final String desc = !altDesc.isEmpty() ? altDesc : defaultDesc;
-
-        return Option.builder("i")
-                .longOpt("merge-file")
-                .desc(desc)
-                .required()
-                .hasArg()
-                .valueSeparator()
-                .build();
-    }
-
-    /**
-     * Returns main RDF file option required to merge a given RDF file with another RDF file from the command line.
-     * Commandline option shorthand will always be "-m" and "-main-file". This option will always be "required".
-     * @param altDesc Alternative description replacing the default description.
-     * @return Required CLI option for accessing the main RDF file.
-     */
-    public static Option getMainFileOpt(final String altDesc) {
-        final String defaultDesc = "RDF file containing the main database. Entries from the merge RDF file " +
-                "will be integrated into this file. Duplicate entries between the merge RDF file and this file "+
-                "will be removed from the main database and replaced by the entries found in the merge RDF file.";
-        final String desc = !altDesc.isEmpty() ? altDesc : defaultDesc;
-
-        return Option.builder("m")
-                .longOpt("main-file")
-                .desc(desc)
-                .required()
-                .hasArg()
-                .valueSeparator()
-                .build();
-    }
-
-    /**
      * Returns option required to parse a given output file name from the command line.
      * Command line option shorthand will always be "-o" and "-out-file". This option is optional.
      * If no output filename is provided, the file name of the main RDF file will be used. The former main file

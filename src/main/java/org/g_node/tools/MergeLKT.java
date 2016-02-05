@@ -10,13 +10,13 @@
 
 package org.g_node.tools;
 
+import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.ModelFactory;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Locale;
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
@@ -43,14 +43,42 @@ public class MergeLKT implements MergeTool {
     /**
      * Method returning the commandline options of the LKT merge tool.
      *
+     * Option mergeRDF: Returns merge RDF file option required to merge a given RDF file with another
+     * RDF file from the command line. Commandline option shorthands are "-i" and "-merge-file".
+     * This option will always be "required".
+     *
+     * Option mainRDF: Returns main RDF file option required to merge a given RDF file with another
+     * RDF file from the command line. Commandline option shorthands are "-m" and "-main-file".
+     * This option will always be "required".
+     *
      * @return Available {@link CommandLine} {@link Options}.
      */
-    public Options options() {
+    public final Options options() {
+
         final Options options = new Options();
 
         final Option opHelp = CliOptionService.getHelpOpt("");
-        final Option opMergeFile = CliOptionService.getMergeFileOpt("");
-        final Option opMainFile = CliOptionService.getMainFileOpt("");
+
+        final Option opMergeFile = Option.builder("i")
+                .longOpt("merge-file")
+                .desc("RDF file that will be merged with a main RDF file.")
+                .required()
+                .hasArg()
+                .valueSeparator()
+                .build();
+
+        final String mainDesc = "RDF file containing the main database. Entries from the merge RDF file "
+                + "will be integrated into this file. Duplicate entries between the merge RDF file and this file "
+                + "will be removed from the main database and replaced by the entries found in the merge RDF file.";
+
+        final Option opMainFile = Option.builder("m")
+                .longOpt("main-file")
+                .desc(mainDesc)
+                .required()
+                .hasArg()
+                .valueSeparator()
+                .build();
+
         final Option opOut = CliOptionService.getOutFileOpt("");
         final Option opFormat = CliOptionService.getOutFormatOpt("");
 
@@ -76,7 +104,7 @@ public class MergeLKT implements MergeTool {
      * @param cmd User provided {@link CommandLine} input containing information about the mergeRDF file, mainRDF file,
      *            the output filename and the output format.
      */
-    public void run(final CommandLine cmd) {
+    public final void run(final CommandLine cmd) {
         final String mergeFile = cmd.getOptionValue("i");
         final String mainFile = cmd.getOptionValue("m");
         final String outputFormat = cmd.getOptionValue("f", "TTL").toUpperCase(Locale.ENGLISH);
