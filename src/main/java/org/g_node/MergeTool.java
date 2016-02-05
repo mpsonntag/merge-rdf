@@ -18,7 +18,7 @@ import org.apache.commons.cli.Options;
  *
  * @author Michael Sonntag (sonntag@bio.lmu.de)
  */
-public interface Controller {
+public interface MergeTool {
     /**
      * Method returning available commandline options of the tool corresponding to the command class.
      * @return Constructed set of commandline options.
