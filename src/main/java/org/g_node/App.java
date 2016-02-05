@@ -16,10 +16,18 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.apache.jena.riot.RDFFormat;
 import org.apache.log4j.Logger;
 import org.g_node.srv.ModelUtils;
 import org.g_node.srv.RDFService;
+import org.g_node.tools.MergeLKT;
 
 /**
  * Main application class used to parse command line input and pass
@@ -39,15 +47,14 @@ public class App {
     /**
      * Available merge mergers with key and description.
      */
-    private final Map<String, String> mergers;
+    private final Map<String, MergeTool> mergers;
 
     /**
      * Constructor.
      */
     App() {
         this.mergers = new HashMap<>();
-        this.mergers.put("default", "default merge: remove Resources with identical ID from the main model before merge");
-        this.mergers.put("plainmerge", "merge two models without any modifications");
+        this.mergers.put("default", new MergeLKT());
     }
 
     /**
@@ -72,7 +79,25 @@ public class App {
                     )
             );
 
-            // TODO Implement CLI parser here.
+            final HelpFormatter printHelp = new HelpFormatter();
+            final CommandLineParser parser = new DefaultParser();
+            final MergeTool currMerger = currApp.mergers.get(args[0]);
+            final Options useOptions = currApp.mergers.get(args[0]).options();
+
+            try {
+                final CommandLine cmd = parser.parse(useOptions, args, false);
+                if (cmd.hasOption("h")) {
+                    printHelp.printHelp("Help", useOptions);
+                    return;
+                }
+                currMerger.run(cmd);
+
+            } catch (final ParseException exp) {
+                printHelp.printHelp("Help", useOptions);
+                App.LOGGER.error(
+                        String.join("", "\n", exp.getMessage(), "\n")
+                );
+            }
 
         } else {
             App.LOGGER.error(
