@@ -10,6 +10,7 @@
 
 package org.g_node.srv;
 
+import com.hp.hpl.jena.rdf.model.Model;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -17,8 +18,6 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
-import com.hp.hpl.jena.rdf.model.Model;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFFormat;
 import org.apache.log4j.Logger;
@@ -29,12 +28,6 @@ import org.apache.log4j.Logger;
  * @author Michael Sonntag (sonntag@bio.lmu.de)
  */
 public final class RDFService {
-
-    /**
-     * Access to the main LOGGER.
-     */
-    private static final Logger LOGGER = Logger.getLogger(RDFService.class.getName());
-
     /**
      * Map returning the RDF formats supported by this service.
      */
@@ -60,6 +53,11 @@ public final class RDFService {
                     put("JSON-LD", "jsonld");
                 }
             });
+
+    /**
+     * Access to the main LOGGER.
+     */
+    private static final Logger LOGGER = Logger.getLogger(RDFService.class.getName());
 
     /**
      * Open an RDF file, load the data and return the RDF model. Method will not check,
