@@ -62,38 +62,6 @@ public final class RDFService {
             });
 
     /**
-     * Write an rdf model to an output file. This method will overwrite any
-     * files with the same path and filename.
-     * @param fileName Path and filename of the output file.
-     * @param model RDF model that's supposed to be written to the file.
-     * @param format Output format of the RDF file.
-     */
-    public static void writeModelToFile(final String fileName, final Model model, final String format) {
-
-        final File file = new File(fileName);
-
-        try {
-            final FileOutputStream fos = new FileOutputStream(file);
-            RDFService.LOGGER.info(
-                    String.join(
-                            "", "Writing data to RDF file, ",
-                            fileName, " using format '", format, "'"
-                    )
-            );
-            try {
-                RDFDataMgr.write(fos, model, RDFService.RDF_FORMAT_MAP.get(format));
-                fos.close();
-            } catch (IOException ioExc) {
-                RDFService.LOGGER.error("Error closing file stream.");
-            }
-        } catch (FileNotFoundException exc) {
-            RDFService.LOGGER.error(
-                    String.join("", "Could not open output file ", fileName)
-            );
-        }
-    }
-
-    /**
      * Open an RDF file, load the data and return the RDF model. Method will not check,
      * if the file is actually a valid RDF file or if the file extension matches
      * the content of the file.
@@ -102,6 +70,65 @@ public final class RDFService {
      */
     public static Model openModelFromFile(final String fileName) {
         return RDFDataMgr.loadModel(fileName);
+    }
+
+    /**
+     * Write an RDF model to an output file using an RDF file format supported by this tool, specified
+     * in {@link RDFService#RDF_FORMAT_MAP}.
+     * This method will overwrite any files with the same path and filename.
+     * @param fileName Path and filename of the output file.
+     * @param model RDF model that's supposed to be written to the file.
+     * @param format Output format of the RDF file.
+     */
+    public static void saveModelToFile(final String fileName, final Model model, final String format) {
+
+        final File file = new File(fileName);
+
+        try {
+            final FileOutputStream fos = new FileOutputStream(file);
+            RDFService.LOGGER.info(
+                    String.join(
+                            "", "Writing data to RDF file '", fileName, "' using format '", format, "'"
+                    )
+            );
+            if (RDFService.RDF_FORMAT_MAP.containsKey(format)) {
+                try {
+                    RDFDataMgr.write(fos, model, RDFService.RDF_FORMAT_MAP.get(format));
+                    fos.close();
+                } catch (IOException ioExc) {
+                    RDFService.LOGGER.error("Error closing file stream.");
+                }
+            } else {
+                RDFService.LOGGER.error(
+                        String.join("", "Error when saving output file: output format '",
+                                format, "' is not supported.")
+                );
+            }
+        } catch (FileNotFoundException exc) {
+            RDFService.LOGGER.error(String.join("", "Could not open output file ", fileName));
+        }
+    }
+    /**
+     * Helper method saving an RDF model to a file in a specified RDF format.
+     * This method will overwrite any files with the same path and filename.
+     * @param m Model that's supposed to be saved.
+     * @param fileName Path and Name of the output file.
+     * @param format Specified {@link RDFFormat} of the output file.
+     */
+    public static void plainSaveModelToFile(final Model m, final String fileName, final RDFFormat format) {
+        final File file = new File(fileName);
+
+        try {
+            final FileOutputStream fos = new FileOutputStream(file);
+            try {
+                RDFDataMgr.write(fos, m, format);
+                fos.close();
+            } catch (IOException ioExc) {
+                ioExc.printStackTrace();
+            }
+        } catch (FileNotFoundException exc) {
+            exc.printStackTrace();
+        }
     }
 
 }

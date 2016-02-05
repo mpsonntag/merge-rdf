@@ -14,12 +14,6 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import org.apache.jena.riot.RDFDataMgr;
-import org.apache.jena.riot.RDFFormat;
 
 /**
  * Utility class used to handle RDF model functions.
@@ -27,28 +21,6 @@ import org.apache.jena.riot.RDFFormat;
  * @author Michael Sonntag (sonntag@bio.lmu.de)
  */
 public final class ModelUtils {
-    /**
-     * Helper method saving an RDF model to a file in a specified RDF format.
-     * @param m Model that's supposed to be saved.
-     * @param fileName Path and Name of the output file.
-     * @param format Specified {@link RDFFormat} of the output file.
-     */
-    public static void saveModelToFile(final Model m, final String fileName, final RDFFormat format) {
-        final File file = new File(fileName);
-
-        try {
-            final FileOutputStream fos = new FileOutputStream(file);
-            try {
-                RDFDataMgr.write(fos, m, format);
-                fos.close();
-            } catch (IOException ioExc) {
-                ioExc.printStackTrace();
-            }
-        } catch (FileNotFoundException exc) {
-            exc.printStackTrace();
-        }
-    }
-
     /**
      * Walk through existing {@link Resource}s of an input RDF {@link Model}, check for Resources
      * identical by URI with another model and remove all Property and anonymous RDFNodes

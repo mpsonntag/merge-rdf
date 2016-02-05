@@ -141,8 +141,10 @@ public class App {
             mergeModel.add(addModel);
         }
 
-        // TODO remove this hard coded output format!
-        RDFService.writeModelToFile(outFileName, mergeModel, "TTL");
+        if (RDFService.RDF_FORMAT_MAP.containsValue(outFormat)) {
+            // TODO remove this hard coded output format!
+            RDFService.saveModelToFile(outFileName, mergeModel, "TTL");
+        }
     }
 
 }
