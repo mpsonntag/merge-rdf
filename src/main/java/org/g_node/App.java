@@ -16,11 +16,10 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFFormat;
 import org.apache.log4j.Logger;
 import org.g_node.srv.ModelUtils;
+import org.g_node.srv.RDFService;
 
 /**
  * Main application class used to parse command line input and pass
@@ -126,8 +125,8 @@ public class App {
                             final String mainFileName, final String addFileName,
                             final String outFileName, final RDFFormat outFormat) {
 
-        final Model mainModel = RDFDataMgr.loadModel(mainFileName);
-        final Model addModel = RDFDataMgr.loadModel(addFileName);
+        final Model mainModel = RDFService.openModelFromFile(mainFileName);
+        final Model addModel = RDFService.openModelFromFile(addFileName);
 
         Model mergeModel = ModelFactory.createDefaultModel();
 
@@ -141,7 +140,9 @@ public class App {
             mergeModel.add(mainModel);
             mergeModel.add(addModel);
         }
-        ModelUtils.saveModelToFile(mergeModel, outFileName, outFormat);
+
+        // TODO remove this hard coded output format!
+        RDFService.writeModelToFile(outFileName, mergeModel, "TTL");
     }
 
 }
