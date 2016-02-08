@@ -8,17 +8,17 @@
  * LICENSE file in the root of the Project.
  */
 
-package org.g_node;
+package org.g_node.micro.commons;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 
 /**
- * Interface for command classes of individual tools.
+ * Interface for command classes of individual g-node RDF microservice commandline tools.
  *
  * @author Michael Sonntag (sonntag@bio.lmu.de)
  */
-public interface MergeTool {
+public interface CliToolController {
     /**
      * Method returning available commandline options of the tool corresponding to the command class.
      * @return Constructed set of commandline options.

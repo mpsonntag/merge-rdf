@@ -8,7 +8,7 @@
  * LICENSE file in the root of the Project.
  */
 
-package org.g_node.srv;
+package org.g_node.micro.commons;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;

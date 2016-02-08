@@ -28,6 +28,7 @@ import java.util.Locale;
 import javax.xml.bind.DatatypeConverter;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.jena.riot.RDFFormat;
+import org.g_node.micro.commons.RDFService;
 
 /**
  * This utility class contains all methods during the prototyping phase and will be removed later. All

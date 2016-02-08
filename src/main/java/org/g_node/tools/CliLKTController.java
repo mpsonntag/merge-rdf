@@ -21,12 +21,12 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.log4j.Logger;
-import org.g_node.MergeTool;
-import org.g_node.srv.AppUtils;
+import org.g_node.micro.commons.AppUtils;
+import org.g_node.micro.commons.CliToolController;
+import org.g_node.micro.commons.RDFService;
 import org.g_node.srv.CliOptionService;
 import org.g_node.srv.CtrlCheckService;
 import org.g_node.srv.ModelUtils;
-import org.g_node.srv.RDFService;
 
 /**
  * Class handling the merging of RDF documents of the Use case of Kay Thurley.
@@ -35,11 +35,11 @@ import org.g_node.srv.RDFService;
  *
  * @author Michael Sonntag (sonntag@bio.lmu.de)
  */
-public class MergeLKT implements MergeTool {
+public class CliLKTController implements CliToolController {
     /**
      * Access to the main LOGGER.
      */
-    private static final Logger LOGGER = Logger.getLogger(MergeLKT.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(CliLKTController.class.getName());
 
     /**
      * Method returning the commandline options of the LKT merge tool.
@@ -164,7 +164,7 @@ public class MergeLKT implements MergeTool {
         try {
             Files.copy(mainPath, Paths.get(backupPath));
         } catch (IOException e) {
-            MergeLKT.LOGGER.error(
+            CliLKTController.LOGGER.error(
                     String.join("", "[ERROR ] while saving backup file '", backupName, "'")
             );
             e.printStackTrace();

@@ -8,13 +8,13 @@
  * LICENSE file in the root of the Project.
  */
 
-package org.g_node.srv;
+package org.g_node.micro.commons;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 /**
- * Class to provide utility methods to the application.
+ * Class to provide utility methods to g-node microservice applications.
  *
  * @author Michael Sonntag (sonntag@bio.lmu.de)
  */

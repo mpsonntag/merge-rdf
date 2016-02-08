@@ -16,7 +16,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -25,9 +24,10 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.jena.riot.RDFFormat;
 import org.apache.log4j.Logger;
+import org.g_node.micro.commons.CliToolController;
+import org.g_node.micro.commons.RDFService;
 import org.g_node.srv.ModelUtils;
-import org.g_node.srv.RDFService;
-import org.g_node.tools.MergeLKT;
+import org.g_node.tools.CliLKTController;
 
 /**
  * Main application class used to parse command line input and pass
@@ -47,14 +47,14 @@ public class App {
     /**
      * Available merge mergers with key and description.
      */
-    private final Map<String, MergeTool> mergers;
+    private final Map<String, CliToolController> mergers;
 
     /**
      * Constructor.
      */
     App() {
         this.mergers = new HashMap<>();
-        this.mergers.put("default", new MergeLKT());
+        this.mergers.put("default", new CliLKTController());
     }
 
     /**
@@ -81,7 +81,7 @@ public class App {
 
             final HelpFormatter printHelp = new HelpFormatter();
             final CommandLineParser parser = new DefaultParser();
-            final MergeTool currMerger = currApp.mergers.get(args[0]);
+            final CliToolController currMerger = currApp.mergers.get(args[0]);
             final Options useOptions = currApp.mergers.get(args[0]).options();
 
             try {
