@@ -12,6 +12,11 @@ package org.g_node.micro.commons;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
+
+import org.apache.commons.codec.digest.DigestUtils;
 
 /**
  * Class to provide utility methods to g-node microservice applications.
@@ -27,6 +32,20 @@ public class AppUtils {
      */
     public static String getTimeStamp(final String format) {
         return LocalDateTime.now().format(DateTimeFormatter.ofPattern(format));
+    }
+
+    /**
+     * Method converts a List of Strings to upper case, joins the individual entries by a blank space
+     * and retrieves a hexadecimal String from the resulting input String using the SHA-1 hash algorithm.
+     * @param valueList List of Strings.
+     * @return Hexadecimal String of the SHA-1 encoded input Strings.
+     */
+    public static String getHashSHA(final List<String> valueList) {
+        final String collectListValues = valueList.stream()
+                .map(s -> s.toUpperCase(Locale.ENGLISH))
+                .collect(Collectors.joining(" "));
+
+        return DigestUtils.shaHex(collectListValues);
     }
 
 }
