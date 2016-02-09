@@ -126,6 +126,10 @@ public class CliLKTController implements CliToolController {
             outputFile = String.join("", outputFile, ".", RDFService.RDF_FORMAT_EXTENSION.get(outputFormat));
         }
 
+        if (!CtrlCheckService.checkValidRdfFile(mainFile) || !CtrlCheckService.checkValidRdfFile(mergeFile)) {
+            return;
+        }
+
         final Model mainModel = RDFService.openModelFromFile(mainFile);
         final Model addModel = RDFService.openModelFromFile(mergeFile);
 
