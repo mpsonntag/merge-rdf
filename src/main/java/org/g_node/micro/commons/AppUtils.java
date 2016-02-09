@@ -15,15 +15,14 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
-
 import org.apache.commons.codec.digest.DigestUtils;
 
 /**
- * Class to provide utility methods to g-node microservice applications.
+ * Class providing utility methods to g-node microservice applications.
  *
  * @author Michael Sonntag (sonntag@bio.lmu.de)
  */
-public class AppUtils {
+public final class AppUtils {
 
     /**
      * Return time stamp formatted corresponding to input format pattern.
