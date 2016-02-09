@@ -108,35 +108,6 @@ public class App {
     }
 
     /**
-     * Setting up input strings for developing the prototype application. Will be removed.
-     */
-    private void runPrototype() {
-
-        final String useCase = "default";
-
-        final String mainFileName = "rdfTestFiles/LKT_merge_test_01a.ttl";
-        final String addFileName = "rdfTestFiles/LKT_merge_test_01b.ttl";
-
-        final String outPath = "/home/msonntag/work/spielwiese/KayRDF/";
-        final RDFFormat outFormat = RDFFormat.TURTLE_PRETTY;
-
-        String outFileName;
-
-        if ("default".equals(useCase)) {
-            outFileName = String.join("", outPath, "curr_out.ttl");
-        } else if ("plainmerge".equals(useCase)) {
-            outFileName = String.join("", outPath, "curr_out_merge_only.ttl");
-        } else {
-            outFileName = String.join("", outPath, "tmp.ttl");
-        }
-
-        final String loadMainFile = ClassLoader.getSystemClassLoader().getResource(mainFileName).toString();
-        final String loadAddFile = ClassLoader.getSystemClassLoader().getResource(addFileName).toString();
-
-        this.run(useCase, loadMainFile, loadAddFile, outFileName, outFormat);
-    }
-
-    /**
      * Main method to select and execute different merge methods.
      * @param useCase String containing the selected merge method.
      * @param mainFileName File name of the main RDF file.
