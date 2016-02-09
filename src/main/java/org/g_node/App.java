@@ -40,15 +40,15 @@ public class App {
     private static final Logger LOGGER = Logger.getLogger(App.class.getName());
 
     /**
-     * Available merge mergers with key and description.
+     * Available merge tools with key and description.
      */
-    private final Map<String, CliToolController> mergers;
+    private final Map<String, CliToolController> tools;
 
     /**
      * Constructor.
      */
     App() {
-        this.mergers = new HashMap<>();
+        this.tools = new HashMap<>();
     }
 
     /**
@@ -56,7 +56,7 @@ public class App {
      * The short hand is required to select and run the intended crawler or RDF to RDF converter.
      */
     public final void register() {
-        this.mergers.put("default", new CliLKTController());
+        this.tools.put("default", new CliLKTController());
     }
 
     /**
@@ -73,7 +73,7 @@ public class App {
         final App currApp = new App();
         currApp.register();
 
-        if (args.length >= 1 && currApp.mergers.containsKey(args[0])) {
+        if (args.length >= 1 && currApp.tools.containsKey(args[0])) {
             System.out.println(
                     String.join("", "[DEBUG] Parse CLI arguments: ",
                             Integer.toString(args.length)
@@ -82,8 +82,8 @@ public class App {
 
             final HelpFormatter printHelp = new HelpFormatter();
             final CommandLineParser parser = new DefaultParser();
-            final CliToolController currMerger = currApp.mergers.get(args[0]);
-            final Options useOptions = currApp.mergers.get(args[0]).options();
+            final CliToolController currMerger = currApp.tools.get(args[0]);
+            final Options useOptions = currApp.tools.get(args[0]).options();
 
             try {
                 final CommandLine cmd = parser.parse(useOptions, args, false);
@@ -105,7 +105,7 @@ public class App {
                     String.join("", "No proper merger selected!",
                             "\n\t Please use syntax 'java -jar merge-rdf.jar [merger] [options]'",
                             "\n\t e.g. 'java -jar merge-rdf.jar default -i mergeRDF.ttl -f mainRDF.ttl -o out.ttl'",
-                            "\n\t Currently available mergers: ", currApp.mergers.keySet().toString())
+                            "\n\t Currently available mergers: ", currApp.tools.keySet().toString())
             );
         }
     }
