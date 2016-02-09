@@ -20,6 +20,7 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.codec.binary.StringUtils;
 import org.apache.log4j.Logger;
 import org.g_node.micro.commons.CliToolController;
 import org.g_node.tools.CliLKTController;
@@ -69,16 +70,14 @@ public class App {
         App.LOGGER.info(
                 String.join("", currDateTime, ", Starting merge RDF resources logfile.")
         );
+        App.LOGGER.info(
+                String.join("", "Input arguments: '", String.join(" ", args), "'")
+        );
 
         final App currApp = new App();
         currApp.register();
 
         if (args.length >= 1 && currApp.tools.containsKey(args[0])) {
-            System.out.println(
-                    String.join("", "[DEBUG] Parse CLI arguments: ",
-                            Integer.toString(args.length)
-                    )
-            );
 
             final HelpFormatter printHelp = new HelpFormatter();
             final CommandLineParser parser = new DefaultParser();
