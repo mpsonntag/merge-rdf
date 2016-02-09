@@ -67,6 +67,7 @@ public class App {
     public static void main(final String[] args) {
 
         final String currDateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"));
+        App.LOGGER.info("\n");
         App.LOGGER.info(
                 String.join("", currDateTime, ", Starting merge RDF resources logfile.")
         );
