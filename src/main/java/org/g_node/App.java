@@ -10,8 +10,6 @@
 
 package org.g_node;
 
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -22,11 +20,8 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.jena.riot.RDFFormat;
 import org.apache.log4j.Logger;
 import org.g_node.micro.commons.CliToolController;
-import org.g_node.micro.commons.RDFService;
-import org.g_node.srv.ModelUtils;
 import org.g_node.tools.CliLKTController;
 
 /**
@@ -104,40 +99,6 @@ public class App {
                             "\n\t e.g. 'java -jar merge-rdf.jar default -i mergeRDF.ttl -f mainRDF.ttl -o out.ttl'",
                             "\n\t Currently available mergers: ", currApp.mergers.keySet().toString())
             );
-        }
-    }
-
-    /**
-     * Main method to select and execute different merge methods.
-     * @param useCase String containing the selected merge method.
-     * @param mainFileName File name of the main RDF file.
-     * @param addFileName File name of the RDF file that is supposed to be merged with the main RDF file.
-     * @param outFileName Path to the output file.
-     * @param outFormat RDF format of the output file.
-     */
-    private void run(final String useCase,
-                            final String mainFileName, final String addFileName,
-                            final String outFileName, final RDFFormat outFormat) {
-
-        final Model mainModel = RDFService.openModelFromFile(mainFileName);
-        final Model addModel = RDFService.openModelFromFile(addFileName);
-
-        Model mergeModel = ModelFactory.createDefaultModel();
-
-        // Can be a problem, if the addModel has differing prefixes.
-        mergeModel.setNsPrefixes(mainModel.getNsPrefixMap());
-
-        if ("default".equals(useCase)) {
-            mergeModel = ModelUtils.removePropertiesFromModel(addModel, mainModel, true);
-            mergeModel.add(addModel);
-        } else if ("plainmerge".equals(useCase)) {
-            mergeModel.add(mainModel);
-            mergeModel.add(addModel);
-        }
-
-        if (RDFService.RDF_FORMAT_MAP.containsValue(outFormat)) {
-            // TODO remove this hard coded output format!
-            RDFService.saveModelToFile(outFileName, mergeModel, "TTL");
         }
     }
 
