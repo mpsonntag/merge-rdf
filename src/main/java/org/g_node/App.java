@@ -70,9 +70,7 @@ public class App {
 
         final App currApp = new App();
 
-        if (args.length < 1) {
-            currApp.runPrototype();
-        } else if (currApp.mergers.containsKey(args[0])) {
+        if (args.length >= 1 && currApp.mergers.containsKey(args[0])) {
             System.out.println(
                     String.join("", "[DEBUG] Parse CLI arguments: ",
                             Integer.toString(args.length)
