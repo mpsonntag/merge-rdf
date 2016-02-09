@@ -49,6 +49,13 @@ public class App {
      */
     App() {
         this.mergers = new HashMap<>();
+    }
+
+    /**
+     * Method to register all implemented tools with their short hand.
+     * The short hand is required to select and run the intended crawler or RDF to RDF converter.
+     */
+    public final void register() {
         this.mergers.put("default", new CliLKTController());
     }
 
@@ -64,6 +71,7 @@ public class App {
         );
 
         final App currApp = new App();
+        currApp.register();
 
         if (args.length >= 1 && currApp.mergers.containsKey(args[0])) {
             System.out.println(
