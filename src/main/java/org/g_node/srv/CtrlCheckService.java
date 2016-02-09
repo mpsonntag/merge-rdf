@@ -35,7 +35,9 @@ public final class CtrlCheckService {
     public static boolean existingFile(final String file) {
 
         boolean properFile = true;
-        CtrlCheckService.LOGGER.info("Checking file...");
+        CtrlCheckService.LOGGER.info(
+                String.join("", "Checking file '", file, "'...")
+        );
         if (!FileService.checkFile(file)) {
             CtrlCheckService.LOGGER.error(
                     String.join("", "File ", file, " does not exist.")
