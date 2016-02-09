@@ -20,7 +20,6 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.commons.codec.binary.StringUtils;
 import org.apache.log4j.Logger;
 import org.g_node.micro.commons.CliToolController;
 import org.g_node.tools.CliLKTController;
@@ -41,7 +40,7 @@ public class App {
     private static final Logger LOGGER = Logger.getLogger(App.class.getName());
 
     /**
-     * Available merge tools with key and description.
+     * Available merge tools with key and corresponding controller class instance.
      */
     private final Map<String, CliToolController> tools;
 
@@ -54,7 +53,7 @@ public class App {
 
     /**
      * Method to register all implemented tools with their short hand.
-     * The short hand is required to select and run the intended crawler or RDF to RDF converter.
+     * The short hand is required to select and run the intended tool from the command line.
      */
     public final void register() {
         this.tools.put("default", new CliLKTController());
@@ -69,7 +68,7 @@ public class App {
         final String currDateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"));
         App.LOGGER.info("\n");
         App.LOGGER.info(
-                String.join("", currDateTime, ", Starting merge RDF resources logfile.")
+                String.join("", currDateTime, ", Starting merge-rdf logfile.")
         );
         App.LOGGER.info(
                 String.join("", "Input arguments: '", String.join(" ", args), "'")
@@ -102,10 +101,10 @@ public class App {
 
         } else {
             App.LOGGER.error(
-                    String.join("", "No proper merger selected!",
+                    String.join("", "No proper merge tool selected!",
                             "\n\t Please use syntax 'java -jar merge-rdf.jar [merger] [options]'",
                             "\n\t e.g. 'java -jar merge-rdf.jar default -i mergeRDF.ttl -f mainRDF.ttl -o out.ttl'",
-                            "\n\t Currently available mergers: ", currApp.tools.keySet().toString())
+                            "\n\t Currently available merge tools: ", currApp.tools.keySet().toString())
             );
         }
     }
