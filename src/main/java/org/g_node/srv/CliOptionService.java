@@ -26,7 +26,7 @@ public final class CliOptionService {
      * @param altDesc Optional description.
      * @return Help option.
      */
-    public static Option getHelpOpt(final String altDesc) {
+    public static Option getHelpOption(final String altDesc) {
 
         final String defaultDesc = "Print this message.";
         final String desc = !altDesc.isEmpty() ? altDesc : defaultDesc;
@@ -40,12 +40,12 @@ public final class CliOptionService {
      * If no output filename is provided, the file name of the main RDF file will be used. The former main file
      * will be renamed to '[Date_time]_backup_[main file name]' to avoid any loss of information.
      * @param altDesc Alternative description replacing the default description.
-     * @return CLI option parsing an input file.
+     * @return CLI option for handling the output file.
      */
-    public static Option getOutFileOpt(final String altDesc) {
+    public static Option getOutFileOption(final String altDesc) {
 
-        final String defaultDesc = String.join(
-                "", "Optional: Path and name of the output file. ",
+        final String defaultDesc = String.join("",
+                "Optional: Path and name of the output file. ",
                 "Files with the same name will be overwritten. ",
                 "If no file name is provided, the file name of the main RDF file will be used. ",
                 "In this case, the original main RDF file will be copied to a backup file ",
@@ -64,12 +64,12 @@ public final class CliOptionService {
      * Returns option required to parse a given output format from the command line.
      * Commandline option shorthand will always be "-f" and "-out-format".
      * @param altDesc Alternative description replacing the default description.
-     * @return CLI option parsing an input file.
+     * @return CLI option for handling the output format.
      */
-    public static Option getOutFormatOpt(final String altDesc) {
+    public static Option getOutFormatOption(final String altDesc) {
 
-        final String defaultDesc = String.join(
-                "", "Optional: format of the RDF file that will be written.\n",
+        final String defaultDesc = String.join("",
+                "Optional: format of the RDF file that will be written.\n",
                 "Supported file formats: ", RDFService.RDF_FORMAT_MAP.keySet().toString(),
                 "\nDefault setting is the Turtle (TTL) format.");
         final String desc = !altDesc.isEmpty() ? altDesc : defaultDesc;
@@ -81,4 +81,5 @@ public final class CliOptionService {
                 .valueSeparator()
                 .build();
     }
+
 }

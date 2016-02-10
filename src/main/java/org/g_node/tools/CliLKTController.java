@@ -58,7 +58,7 @@ public class CliLKTController implements CliToolController {
 
         final Options options = new Options();
 
-        final Option opHelp = CliOptionService.getHelpOpt("");
+        final Option opHelp = CliOptionService.getHelpOption("");
 
         final Option opMergeFile = Option.builder("i")
                 .longOpt("merge-file")
@@ -68,9 +68,10 @@ public class CliLKTController implements CliToolController {
                 .valueSeparator()
                 .build();
 
-        final String mainDesc = "RDF file containing the main database. Entries from the merge RDF file "
-                + "will be integrated into this file. Duplicate entries between the merge RDF file and this file "
-                + "will be removed from the main database and replaced by the entries found in the merge RDF file.";
+        final String mainDesc = String.join("",
+                "RDF file containing the main database. Entries from the merge RDF file ",
+                "will be integrated into this file. Duplicate entries between the merge RDF file and this file ",
+                "will be removed from the main database and replaced by the entries found in the merge RDF file.");
 
         final Option opMainFile = Option.builder("m")
                 .longOpt("main-file")
@@ -80,8 +81,8 @@ public class CliLKTController implements CliToolController {
                 .valueSeparator()
                 .build();
 
-        final Option opOut = CliOptionService.getOutFileOpt("");
-        final Option opFormat = CliOptionService.getOutFormatOpt("");
+        final Option opOut = CliOptionService.getOutFileOption("");
+        final Option opFormat = CliOptionService.getOutFormatOption("");
 
         options.addOption(opHelp);
         options.addOption(opMergeFile);
