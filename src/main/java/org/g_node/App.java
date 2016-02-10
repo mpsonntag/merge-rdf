@@ -10,8 +10,6 @@
 
 package org.g_node;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.cli.CommandLine;
@@ -21,6 +19,7 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.log4j.Logger;
+import org.g_node.micro.commons.AppUtils;
 import org.g_node.micro.commons.CliToolController;
 import org.g_node.tools.CliLKTController;
 
@@ -65,10 +64,9 @@ public class App {
      */
     public static void main(final String[] args) {
 
-        final String currDateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"));
         App.LOGGER.info("\n");
         App.LOGGER.info(
-                String.join("", currDateTime, ", Starting merge-rdf logfile.")
+                String.join("", AppUtils.getTimeStamp("dd.MM.yyyy HH:mm"), ", Starting merge-rdf logfile.")
         );
         App.LOGGER.info(
                 String.join("", "Input arguments: '", String.join(" ", args), "'")
