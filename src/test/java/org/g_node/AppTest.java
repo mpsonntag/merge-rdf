@@ -68,7 +68,15 @@ public class AppTest {
     public void testEmptyMain() throws Exception {
         final String[] emptyArgs = new String[0];
         App.main(emptyArgs);
-        assertThat(this.outStream.toString()).contains("[ERROR] No proper merge tool selected!");
+        assertThat(this.outStream.toString()).contains("[ERROR] No existing merge tool selected!");
+    }
+
+    @Test
+    public void testMainInvalidArgs() throws Exception {
+        final String[] invalidArgs = new String[1];
+        invalidArgs[0] = "iDoNotExist";
+        App.main(invalidArgs);
+        assertThat(this.outStream.toString()).contains("[ERROR] No existing merge tool selected!");
     }
 
 }
