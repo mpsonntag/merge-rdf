@@ -10,6 +10,7 @@
 
 package org.g_node;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.cli.CommandLine;
@@ -37,27 +38,16 @@ public class App {
      * Access to the main log4j LOGGER.
      */
     private static final Logger LOGGER = Logger.getLogger(App.class.getName());
-
     /**
-     * Available merge tools with key and corresponding controller class instance.
+     * Hash map of all implemented merger tools mapping a string to the corresponding controller class.
      */
-    private final Map<String, CliToolController> tools;
-
-    /**
-     * Constructor.
-     */
-    App() {
-        this.tools = new HashMap<>();
-    }
-
-    /**
-     * Method to register all implemented tools with their short hand.
-     * The short hand is required to select and run the intended tool from the command line.
-     */
-    public final void register() {
-        this.tools.put("default", new CliLKTController());
-    }
-
+    private static final Map<String, CliToolController> REGISTRY = Collections.unmodifiableMap(
+            new HashMap<String, CliToolController>() {
+                {
+                    put("lkt", new CliLKTController());
+                }
+            }
+    );
     /**
      * Main method of the merge-rdf framework.
      * @param args Command line input arguments.
@@ -72,15 +62,11 @@ public class App {
                 String.join("", "Input arguments: '", String.join(" ", args), "'")
         );
 
-        final App currApp = new App();
-        currApp.register();
-
-        if (args.length > 0 && currApp.tools.containsKey(args[0])) {
+        if (args.length > 0 && App.REGISTRY.containsKey(args[0])) {
 
             final HelpFormatter printHelp = new HelpFormatter();
             final CommandLineParser parser = new DefaultParser();
-            final CliToolController currMerger = currApp.tools.get(args[0]);
-            final Options useOptions = currApp.tools.get(args[0]).options();
+            final Options useOptions = App.REGISTRY.get(args[0]).options();
 
             try {
                 final CommandLine cmd = parser.parse(useOptions, args, false);
@@ -88,7 +74,7 @@ public class App {
                     printHelp.printHelp("Help", useOptions);
                     return;
                 }
-                currMerger.run(cmd);
+                App.REGISTRY.get(args[0]).run(cmd);
 
             } catch (final ParseException exp) {
                 printHelp.printHelp("Help", useOptions);
@@ -99,10 +85,10 @@ public class App {
 
         } else {
             App.LOGGER.error(
-                    String.join("", "No proper merge tool selected!",
+                    String.join("", "No existing merge tool selected!",
                             "\n\t Please use syntax 'java -jar merge-rdf.jar [merger] [options]'",
-                            "\n\t e.g. 'java -jar merge-rdf.jar default -i mergeRDF.ttl -m mainRDF.ttl -o out.ttl'",
-                            "\n\t Currently available merge tools: ", currApp.tools.keySet().toString())
+                            "\n\t e.g. 'java -jar merge-rdf.jar lkt -i mergeRDF.ttl -m mainRDF.ttl -o out.ttl'",
+                            "\n\t Currently available merge tools: ", App.REGISTRY.keySet().toString())
             );
         }
     }
