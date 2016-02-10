@@ -103,7 +103,7 @@ public class App {
             App.LOGGER.error(
                     String.join("", "No proper merge tool selected!",
                             "\n\t Please use syntax 'java -jar merge-rdf.jar [merger] [options]'",
-                            "\n\t e.g. 'java -jar merge-rdf.jar default -i mergeRDF.ttl -f mainRDF.ttl -o out.ttl'",
+                            "\n\t e.g. 'java -jar merge-rdf.jar default -i mergeRDF.ttl -m mainRDF.ttl -o out.ttl'",
                             "\n\t Currently available merge tools: ", currApp.tools.keySet().toString())
             );
         }
