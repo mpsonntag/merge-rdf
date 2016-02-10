@@ -77,7 +77,7 @@ public class App {
         final App currApp = new App();
         currApp.register();
 
-        if (args.length >= 1 && currApp.tools.containsKey(args[0])) {
+        if (args.length > 0 && currApp.tools.containsKey(args[0])) {
 
             final HelpFormatter printHelp = new HelpFormatter();
             final CommandLineParser parser = new DefaultParser();
