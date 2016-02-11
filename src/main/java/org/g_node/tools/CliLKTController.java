@@ -108,17 +108,17 @@ public class CliLKTController implements CliToolController {
      */
     public final void run(final CommandLine cmd) {
         final String mergeFile = cmd.getOptionValue("i");
-        if (!CtrlCheckService.existingFile(mergeFile)) {
+        if (!CtrlCheckService.isExistingFile(mergeFile)) {
             return;
         }
 
         final String mainFile = cmd.getOptionValue("m");
-        if (!CtrlCheckService.existingFile(mainFile)) {
+        if (!CtrlCheckService.isExistingFile(mainFile)) {
             return;
         }
 
         final String outputFormat = cmd.getOptionValue("f", "TTL").toUpperCase(Locale.ENGLISH);
-        if (!CtrlCheckService.supportedOutputFormat(outputFormat)) {
+        if (!CtrlCheckService.isSupportedOutputFormat(outputFormat)) {
             return;
         }
 
@@ -127,7 +127,7 @@ public class CliLKTController implements CliToolController {
             outputFile = String.join("", outputFile, ".", RDFService.RDF_FORMAT_EXTENSION.get(outputFormat));
         }
 
-        if (!CtrlCheckService.checkValidRdfFile(mainFile) || !CtrlCheckService.checkValidRdfFile(mergeFile)) {
+        if (!CtrlCheckService.isValidRdfFile(mainFile) || !CtrlCheckService.isValidRdfFile(mergeFile)) {
             return;
         }
 
