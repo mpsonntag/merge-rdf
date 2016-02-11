@@ -22,7 +22,7 @@ import org.apache.commons.cli.ParseException;
 import org.apache.log4j.Logger;
 import org.g_node.micro.commons.AppUtils;
 import org.g_node.micro.commons.CliToolController;
-import org.g_node.tools.CliLKTController;
+import org.g_node.tools.LktCliController;
 
 /**
  * Main application class used to parse command line input and pass
@@ -44,7 +44,7 @@ public class App {
     private static final Map<String, CliToolController> REGISTRY = Collections.unmodifiableMap(
             new HashMap<String, CliToolController>() {
                 {
-                    put("lkt", new CliLKTController());
+                    put("lkt", new LktCliController());
                 }
             }
     );

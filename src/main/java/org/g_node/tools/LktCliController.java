@@ -35,11 +35,11 @@ import org.g_node.srv.ModelUtils;
  *
  * @author Michael Sonntag (sonntag@bio.lmu.de)
  */
-public class CliLKTController implements CliToolController {
+public class LktCliController implements CliToolController {
     /**
      * Access to the main LOGGER.
      */
-    private static final Logger LOGGER = Logger.getLogger(CliLKTController.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(LktCliController.class.getName());
 
     /**
      * Method returning the commandline options of the LKT merge tool.
@@ -170,7 +170,7 @@ public class CliLKTController implements CliToolController {
         try {
             Files.copy(mainPath, Paths.get(backupPath));
         } catch (IOException e) {
-            CliLKTController.LOGGER.error(
+            LktCliController.LOGGER.error(
                     String.join("", "[ERROR ] while saving backup file '", backupName, "'")
             );
             e.printStackTrace();
