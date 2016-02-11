@@ -118,7 +118,7 @@ public class LktCliController implements CliToolController {
         }
 
         final String outputFormat = cmd.getOptionValue("f", "TTL").toUpperCase(Locale.ENGLISH);
-        if (!CtrlCheckService.isSupportedOutputFormat(outputFormat)) {
+        if (!CtrlCheckService.isSupportedOutputFormat(outputFormat, RDFService.RDF_FORMAT_MAP.keySet())) {
             return;
         }
 
