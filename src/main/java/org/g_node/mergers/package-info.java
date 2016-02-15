@@ -10,4 +10,4 @@
  * Provides all implemented mergers available to the application.
  */
 
-package org.g_node.tools;
+package org.g_node.mergers;

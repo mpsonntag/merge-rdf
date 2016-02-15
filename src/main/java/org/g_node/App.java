@@ -22,7 +22,7 @@ import org.apache.commons.cli.ParseException;
 import org.apache.log4j.Logger;
 import org.g_node.micro.commons.AppUtils;
 import org.g_node.micro.commons.CliToolController;
-import org.g_node.tools.LktCliController;
+import org.g_node.mergers.LktCliController;
 
 /**
  * Main application class used to parse command line input and pass
@@ -39,7 +39,7 @@ public class App {
      */
     private static final Logger LOGGER = Logger.getLogger(App.class.getName());
     /**
-     * Hash map of all implemented merger tools mapping a string to the corresponding controller class.
+     * Hash map of all implemented merger mergers mapping a string to the corresponding controller class.
      */
     private static final Map<String, CliToolController> REGISTRY = Collections.unmodifiableMap(
             new HashMap<String, CliToolController>() {
@@ -88,7 +88,7 @@ public class App {
                     String.join("", "No existing merge tool selected!",
                             "\n\t Please use syntax 'java -jar merge-rdf.jar [merger] [options]'",
                             "\n\t e.g. 'java -jar merge-rdf.jar lkt -i mergeRDF.ttl -m mainRDF.ttl -o out.ttl'",
-                            "\n\t Currently available merge tools: ", App.REGISTRY.keySet().toString())
+                            "\n\t Currently available merge mergers: ", App.REGISTRY.keySet().toString())
             );
         }
     }

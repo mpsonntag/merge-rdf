@@ -8,7 +8,7 @@
  * LICENSE file in the root of the Project.
  */
 
-package org.g_node.tools;
+package org.g_node.mergers;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;

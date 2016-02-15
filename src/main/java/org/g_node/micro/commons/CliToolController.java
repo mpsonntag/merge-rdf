@@ -14,7 +14,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 
 /**
- * Interface for command classes of individual g-node RDF microservice commandline tools.
+ * Interface for command classes of individual g-node RDF microservice commandline mergers.
  *
  * @author Michael Sonntag (sonntag@bio.lmu.de)
  */

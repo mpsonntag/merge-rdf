@@ -19,7 +19,7 @@ import org.g_node.micro.commons.FileService;
 import org.g_node.micro.commons.RDFService;
 
 /**
- * Class providing checks common to tools implemented in this service.
+ * Class providing checks common to mergers implemented in this service.
  *
  * @author Michael Sonntag (sonntag@bio.lmu.de)
  */

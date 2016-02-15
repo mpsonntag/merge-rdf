@@ -15,7 +15,7 @@ import org.g_node.micro.commons.RDFService;
 
 /**
  * Class provides CLI {@link Option}s that are common
- * to all tools of this service.
+ * to all mergers of this service.
  *
  * @author Michael Sonntag (sonntag@bio.lmu.de)
  */
