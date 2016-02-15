@@ -7,7 +7,7 @@
  * modification, are permitted under the terms of the BSD License. See
  * LICENSE file in the root of the Project.
  *
- * Provides a testsuite for the merger package of the merge-rdf application.
+ * Provides a testsuite for the micro.commons package of the merge-rdf application.
  */
 
-package org.g_node.mergers;
+package org.g_node.micro.commons;
