@@ -20,9 +20,9 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.log4j.Logger;
+import org.g_node.mergers.LktCliController;
 import org.g_node.micro.commons.AppUtils;
 import org.g_node.micro.commons.CliToolController;
-import org.g_node.mergers.LktCliController;
 
 /**
  * Main application class used to parse command line input and pass
