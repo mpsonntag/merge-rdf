@@ -52,10 +52,10 @@ public final class ModelUtils {
     /**
      * Check if a statement has an anonymous RDFNode as
      * an RDF Object and remove all properties of such an anonymous RDFNode
-     * from the containing model.
+     * from the containing model without removing the anonymous RDFNode itself.
      * @param checkAnon This {@link StmtIterator} contains a list of statements.
      */
-    private static void removeAnonProperties(final StmtIterator checkAnon) {
+    public static void removeAnonProperties(final StmtIterator checkAnon) {
         while (checkAnon.hasNext()) {
             final Statement currStmt = checkAnon.nextStatement();
             if (currStmt.getObject().isAnon()) {
