@@ -53,7 +53,7 @@ public final class CtrlCheckService {
      * @param checkExtension List containing all supported file types for the provided input file.
      * @return True in case the file type is supported, false in case it is not.
      */
-    public static boolean isSupportedInFileType(final String inputFile, final List<String> checkExtension) {
+    public static boolean isSupportedInFileType(final String inputFile, final Set<String> checkExtension) {
 
         CtrlCheckService.LOGGER.info("Checking input format...");
         if (!FileService.checkFileExtension(inputFile, checkExtension)) {

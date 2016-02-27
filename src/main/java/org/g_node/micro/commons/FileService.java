@@ -12,8 +12,8 @@ package org.g_node.micro.commons;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 /**
  * Main service class for dealing with files.
@@ -39,7 +39,7 @@ public final class FileService {
      * @param fileExtensions List containing all supported file extensions.
      * @return True if the file ends with a supported file extension, false otherwise.
      */
-    public static boolean checkFileExtension(final String checkFile, final List<String> fileExtensions) {
+    public static boolean checkFileExtension(final String checkFile, final Set<String> fileExtensions) {
 
         boolean correctFileType = false;
 
