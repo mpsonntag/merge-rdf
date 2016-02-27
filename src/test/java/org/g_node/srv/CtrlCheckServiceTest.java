@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.io.FileUtils;
 import static org.assertj.core.api.Assertions.assertThat;
+import org.g_node.micro.commons.RDFService;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -119,6 +120,25 @@ public class CtrlCheckServiceTest {
         assertThat(this.outStream.toString().contains(
                 String.join("", unsupportedLastEndingIsUsed, errorMessage)
         ));
+    }
+
+    /**
+     * Test that the method returns true if a value is contained within a provided set.
+     * Test that the method returns false if value is not contained within a provided set
+     * and check that the correct error message is displayed.
+     * @throws Exception
+     */
+    @Test
+    public void testSupportedOutputFormat() throws Exception {
+        final Set<String> formats = Stream.of("TTL", "XML").collect(Collectors.toSet());
+        final String errorMessage = "Unsupported output format: '";
+
+        assertThat(CtrlCheckService.isSupportedOutputFormat("txt", formats)).isFalse();
+        assertThat(this.outStream.toString().contains(
+                String.join("", errorMessage, "txt")
+        ));
+
+        assertThat(CtrlCheckService.isSupportedOutputFormat("TTL", formats)).isTrue();
     }
 
     /**
