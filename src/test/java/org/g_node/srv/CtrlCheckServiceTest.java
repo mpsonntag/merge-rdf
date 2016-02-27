@@ -10,10 +10,15 @@
 
 package org.g_node.srv;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.io.FileUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.After;
@@ -26,6 +31,8 @@ import org.junit.Test;
  * @author Michael Sonntag (sonntag@bio.lmu.de)
  */
 public class CtrlCheckServiceTest {
+    private ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+    private PrintStream stdout;
 
     private final String tmpRoot = System.getProperty("java.io.tmpdir");
     private final String testFolderName = "ctrlCheckServiceTest";
@@ -38,6 +45,10 @@ public class CtrlCheckServiceTest {
      */
     @Before
     public void setUp() throws Exception {
+        this.stdout = System.out;
+        this.outStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(this.outStream));
+
         final File currTestFile = this.testFileFolder.resolve(this.testFileName).toFile();
         FileUtils.write(currTestFile, "This is a normal test file");
     }
@@ -48,6 +59,8 @@ public class CtrlCheckServiceTest {
      */
     @After
     public void tearDown() throws Exception {
+        System.setOut(this.stdout);
+
         if (Files.exists(this.testFileFolder)) {
             FileUtils.deleteDirectory(this.testFileFolder.toFile());
         }
@@ -74,6 +87,38 @@ public class CtrlCheckServiceTest {
                         .toAbsolutePath().normalize().toString();
 
         assertThat(CtrlCheckService.isExistingFile(testExistingFilePath)).isTrue();
+    }
+
+    /**
+     * Test that the method prints the correct error message if a given String is not
+     * found in a given Set.
+     * @throws Exception
+     */
+    @Test
+    public void testSupportedInFileType() throws Exception {
+        final Set<String> test = Stream.of("TXT", "TTL").collect(Collectors.toSet());
+
+        final String supportedFileType = "/some/path/someFile.txt";
+        final String unsupportedFileType = "/some/path/someFile.tex";
+        final String unsupportedMissingFileType = "/some/path/someFile";
+        final String unsupportedLastEndingIsUsed = "/some/path/someFile.txt.tex";
+
+        final String errorMessage = " cannot be read.";
+
+        assertThat(CtrlCheckService.isSupportedInFileType(supportedFileType, test)).isTrue();
+
+        assertThat(CtrlCheckService.isSupportedInFileType(unsupportedFileType, test)).isFalse();
+        assertThat(this.outStream.toString().contains(
+                String.join("", unsupportedFileType, errorMessage)
+        ));
+        assertThat(CtrlCheckService.isSupportedInFileType(unsupportedMissingFileType, test)).isFalse();
+        assertThat(this.outStream.toString().contains(
+                String.join("", unsupportedMissingFileType, errorMessage)
+        ));
+        assertThat(CtrlCheckService.isSupportedInFileType(unsupportedLastEndingIsUsed, test)).isFalse();
+        assertThat(this.outStream.toString().contains(
+                String.join("", unsupportedLastEndingIsUsed, errorMessage)
+        ));
     }
 
 }
