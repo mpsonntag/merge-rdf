@@ -12,17 +12,13 @@ package org.g_node.mergers;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Locale;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.log4j.Logger;
-import org.g_node.micro.commons.AppUtils;
 import org.g_node.micro.commons.CliToolController;
+import org.g_node.micro.commons.FileService;
 import org.g_node.micro.commons.RDFService;
 import org.g_node.srv.CliOptionService;
 import org.g_node.srv.CtrlCheckService;
@@ -144,39 +140,14 @@ public class LktCliController implements CliToolController {
 
         // TODO test if this conditional works as required and maybe come up with a better solution.
         // Create backup, if the output file is the same as the main RDF file.
-        if (mainFile.equals(outputFile) && !this.createTimeStampBackupFile(mainFile, "yyyyMMddHHmm")) {
-            // End here, if the backup failed.
+        if (mainFile.equals(outputFile) && !FileService.createTimeStampBackupFile(mainFile, "yyyyMMddHHmm")) {
+            LktCliController.LOGGER.error(
+                    String.join("", "[ERROR ] While saving backup for file '", mainFile, "'")
+            );
             return;
         }
 
         RDFService.saveModelToFile(outputFile, mergeModel, outputFormat);
-
-    }
-
-    /**
-     * Creates a backup file with a timestamp and the string "backup" in its name.
-     * @param file Name of the file that is to be copied.
-     * @param format Format of the timestamp, use DateTimeFormatter conventions.
-     * @return True if the file was successfully created, false, if something failed.
-     */
-    private boolean createTimeStampBackupFile(final String file, final String format) {
-        // TODO move this to some service class.
-        final Path mainPath = Paths.get(file);
-        final String fileName = mainPath.getFileName().toString();
-        final String ts = AppUtils.getTimeStamp(format);
-        final String backupName = String.join("", ts, "_backup_", fileName);
-        final String backupPath = mainPath.toString().replaceFirst(fileName, backupName);
-
-        try {
-            Files.copy(mainPath, Paths.get(backupPath));
-        } catch (IOException e) {
-            LktCliController.LOGGER.error(
-                    String.join("", "[ERROR ] while saving backup file '", backupName, "'")
-            );
-            e.printStackTrace();
-            return false;
-        }
-        return true;
     }
 
 }
