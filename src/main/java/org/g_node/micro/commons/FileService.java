@@ -76,13 +76,13 @@ public final class FileService {
     /**
      * Creates a backup file with a timestamp and the string "backup" in its name.
      * @param file Name of the file that is to be copied.
-     * @param format Format of the timestamp, use DateTimeFormatter conventions.
+     * @param dateTimeFormatPattern Format of the timestamp, use DateTimeFormatter pattern conventions.
      * @return True if the file was successfully created, false, if something failed.
      */
-    public static boolean createTimeStampBackupFile(final String file, final String format) {
+    public static boolean createTimeStampBackupFile(final String file, final String dateTimeFormatPattern) {
         final Path mainPath = Paths.get(file);
         final String fileName = mainPath.getFileName().toString();
-        final String ts = AppUtils.getTimeStamp(format);
+        final String ts = AppUtils.getTimeStamp(dateTimeFormatPattern);
         final String backupName = String.join("", ts, "_backup_", fileName);
         final String backupPath = mainPath.toString().replaceFirst(fileName, backupName);
 
