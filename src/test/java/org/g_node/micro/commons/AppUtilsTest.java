@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import org.junit.Test;
 
 /**
@@ -46,10 +47,11 @@ public final class AppUtilsTest {
     }
 
     /**
-     * Method checks via regular expression that the method returns a valid timestamp.
+     * Test checks via regular expression that the method returns a valid timestamp.
+     * Further checks that a proper exception is thrown if a Non-DateTimeFormatter pattern is used.
      */
     @Test
-    public void testGetTimeStamp() {
+    public void testGetTimeStamp() throws Exception {
         final String testFormat = "dd.MM.yyyy HH:mm";
         final String regEx = String.join("",
                 "([0][1-9]|[1-2][0-9]|[3][0-1]).([0][1-9]|[1][0-2]).(20\\d\\d) ",
@@ -57,6 +59,12 @@ public final class AppUtilsTest {
 
         final String getFormattedTimeStamp = AppUtils.getTimeStamp(testFormat);
         assertThat(getFormattedTimeStamp).matches(regEx);
+
+        final String testInvalidFormat = "something definitely not dateTime";
+        Throwable thrown = catchThrowable(() -> AppUtils.getTimeStamp(testInvalidFormat));
+        assertThat(thrown)
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Unknown pattern letter: o");
     }
 
 }
