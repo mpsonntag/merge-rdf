@@ -123,29 +123,6 @@ public final class RDFService {
         }
     }
     /**
-     * Helper method saving an RDF model to a file in a specified RDF format.
-     * This method will overwrite any files with the same path and filename.
-     * @param m Model that's supposed to be saved.
-     * @param fileName Path and Name of the output file.
-     * @param format Specified {@link RDFFormat} of the output file.
-     */
-    public static void plainSaveModelToFile(final Model m, final String fileName, final RDFFormat format) {
-        final File file = new File(fileName);
-
-        try {
-            final FileOutputStream fos = new FileOutputStream(file);
-            try {
-                RDFDataMgr.write(fos, m, format);
-                fos.close();
-            } catch (IOException ioExc) {
-                ioExc.printStackTrace();
-            }
-        } catch (FileNotFoundException exc) {
-            exc.printStackTrace();
-        }
-    }
-
-    /**
      * Helper method saving a JENA RDF {@link ResultSet} to an output file in a specified output format.
      * @param result JENA RDF {@link ResultSet} that will be saved.
      * @param resultFileFormat String containing a {@link #QUERY_RESULT_FILE_FORMATS} entry.

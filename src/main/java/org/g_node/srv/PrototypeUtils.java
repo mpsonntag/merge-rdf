@@ -267,7 +267,7 @@ public class PrototypeUtils {
 
         PrototypeUtils.removeDuplicateAnonNodes(mergeModel);
 
-        RDFService.plainSaveModelToFile(mergeModel, outFileName, outFormat);
+        RDFService.saveModelToFile(outFileName, mergeModel, outFormat.toString());
     }
 
     /**
@@ -282,7 +282,7 @@ public class PrototypeUtils {
         // determine intersection and difference of the two models.
         final Model intersectModel = mainModel.intersection(addModel);
         final String intersectOutFile = String.join("", mainPath, "test_insersect_out.ttl");
-        RDFService.plainSaveModelToFile(intersectModel, intersectOutFile, outFormat);
+        RDFService.saveModelToFile(intersectOutFile, intersectModel, outFormat.toString());
     }
 
     /**
@@ -296,7 +296,7 @@ public class PrototypeUtils {
                                  final String mainPath, final RDFFormat outFormat) {
         final Model diffModel = mainModel.difference(addModel);
         final String diffOutFile = String.join("", mainPath, "test_diff_out.ttl");
-        RDFService.plainSaveModelToFile(diffModel, diffOutFile, outFormat);
+        RDFService.saveModelToFile(diffOutFile, diffModel, outFormat.toString());
     }
 
     /**
