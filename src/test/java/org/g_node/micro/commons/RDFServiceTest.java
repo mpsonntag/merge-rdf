@@ -10,6 +10,11 @@
 
 package org.g_node.micro.commons;
 
+import com.hp.hpl.jena.query.Query;
+import com.hp.hpl.jena.query.QueryExecution;
+import com.hp.hpl.jena.query.QueryExecutionFactory;
+import com.hp.hpl.jena.query.QueryFactory;
+import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import java.io.ByteArrayOutputStream;
@@ -126,6 +131,65 @@ public class RDFServiceTest {
 
         Model m = RDFService.openModelFromFile(currTestFile.toString());
         assertThat(m.isEmpty()).isFalse();
+    }
+
+    /**
+     * Test that the result of a SPARQL query is saved to a file of a specified output format.
+     * @throws Exception
+     */
+    @Test
+    public void testSaveResultsToSupportedFileFormat() throws Exception {
+        // Set up RDF test file
+        final String miniTTL = "@prefix foaf:  <http://xmlns.com/foaf/0.1/> . _:a foaf:name \"TestName\" .\n";
+        final File currTestFile = this.testFileFolder.resolve("test.ttl").toFile();
+        FileUtils.write(currTestFile, miniTTL);
+
+        final String queryString = String.join("", "prefix foaf:  <http://xmlns.com/foaf/0.1/> ",
+                "SELECT ?getname WHERE { ?node foaf:name ?getname . }");
+
+        final Model queryModel = RDFService.openModelFromFile(currTestFile.getAbsolutePath());
+        final Query query = QueryFactory.create(queryString);
+
+        try (QueryExecution qexec = QueryExecutionFactory.create(query, queryModel)) {
+            final ResultSet result = qexec.execSelect();
+
+            // Test that an invalid file format exits the method with the proper error message.
+            final String invalidOutputFormat = "iDoNotExist";
+            RDFService.saveResultsToSupportedFile(result, invalidOutputFormat, "");
+            assertThat(this.outStream.toString()).contains(
+                    String.join("", invalidOutputFormat, " is not supported by this service.")
+            );
+
+            // Test that an non existing output file without the proper file extension creates an output
+            // file with the proper file extension.
+            // Further test, that the method saved two lines to the output file.
+            final String validOutputFormat = "csv";
+            final Path outFileNoExtension = this.testFileFolder.resolve("out.txt");
+            RDFService.saveResultsToSupportedFile(result, validOutputFormat, outFileNoExtension.toString());
+
+            final Path outFileNameAddedFileExtension = Paths.get(
+                    String.join("", outFileNoExtension.toString(), ".", validOutputFormat));
+
+            assertThat(Files.exists(outFileNoExtension)).isFalse();
+            assertThat(Files.exists(outFileNameAddedFileExtension)).isTrue();
+            assertThat(Files.readAllLines(outFileNameAddedFileExtension).size()).isEqualTo(2);
+
+            // Test that a non existing output file with the proper file extension creates
+            // the output file with an unchanged file name.
+            final Path outFileExtension = this.testFileFolder.resolve(String.join("", "out.", validOutputFormat));
+            RDFService.saveResultsToSupportedFile(result, validOutputFormat, outFileExtension.toString());
+            assertThat(Files.exists(outFileExtension)).isTrue();
+
+            // Test that an existing output file is overwritten.
+            assertThat(Files.readAllLines(outFileExtension).size()).isEqualTo(1);
+            try (QueryExecution qexec_next = QueryExecutionFactory.create(query, queryModel)) {
+                final ResultSet result_next = qexec_next.execSelect();
+
+                RDFService.saveResultsToSupportedFile(result_next, validOutputFormat, outFileExtension.toString());
+                assertThat(Files.exists(outFileExtension)).isTrue();
+                assertThat(Files.readAllLines(outFileExtension).size()).isEqualTo(2);
+            }
+        }
     }
 
 }
