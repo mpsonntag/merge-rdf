@@ -111,6 +111,10 @@ public class RDFServiceTest {
 
         RDFService.saveModelToFile(outFilePath, model, outFileFormat);
         assertThat(this.outStream.toString()).contains(testString);
+
+        final String unsupportedFormat = "iDoNotExist";
+        RDFService.saveModelToFile(outFilePath, model, unsupportedFormat);
+        assertThat(this.outStream.toString()).contains(String.join("", unsupportedFormat, "' is not supported."));
     }
 
     /**
