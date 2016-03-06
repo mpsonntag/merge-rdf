@@ -105,17 +105,18 @@ public final class RDFService {
                     )
             );
             if (RDFService.RDF_FORMAT_MAP.containsKey(format)) {
-                try {
-                    RDFDataMgr.write(fos, model, RDFService.RDF_FORMAT_MAP.get(format));
-                    fos.close();
-                } catch (IOException ioExc) {
-                    RDFService.LOGGER.error("Error closing file stream.");
-                }
+                RDFDataMgr.write(fos, model, RDFService.RDF_FORMAT_MAP.get(format));
             } else {
                 RDFService.LOGGER.error(
                         String.join("", "Error when saving output file: output format '",
                                 format, "' is not supported.")
                 );
+            }
+            try {
+                fos.close();
+            } catch (IOException e) {
+                RDFService.LOGGER.error("Error closing file stream.");
+                e.printStackTrace();
             }
         } catch (FileNotFoundException exc) {
             RDFService.LOGGER.error(String.join("", "Could not open output file ", fileName));
