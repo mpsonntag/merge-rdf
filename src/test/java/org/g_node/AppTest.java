@@ -12,9 +12,7 @@ package org.g_node;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-
 import static org.assertj.core.api.Assertions.assertThat;
-
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -34,6 +32,7 @@ public class AppTest {
 
     private ByteArrayOutputStream outStream;
     private PrintStream stdout;
+    private String tool = "lkt";
 
     /**
      * Redirect Error and Out stream.
@@ -72,11 +71,32 @@ public class AppTest {
     }
 
     @Test
-    public void testMainInvalidArgs() throws Exception {
-        final String[] invalidArgs = new String[1];
-        invalidArgs[0] = "iDoNotExist";
-        App.main(invalidArgs);
+    public void testMainInvalidTool() throws Exception {
+        final String[] invalidTool = new String[1];
+        invalidTool[0] = "iDoNotExist";
+        App.main(invalidTool);
         assertThat(this.outStream.toString()).contains("[ERROR] No existing merge tool selected!");
+    }
+
+    @Test
+    public void testMainPrintHelp() throws Exception {
+        final String[] helpArgs = new String[4];
+        helpArgs[0] = this.tool;
+        helpArgs[1] = "-h";
+        helpArgs[2] = "-i file";
+        helpArgs[3] = "-m file";
+        App.main(helpArgs);
+        assertThat(this.outStream.toString()).contains("usage: Help");
+    }
+
+    @Test
+    public void testMainInvalidArgs() throws Exception {
+        final String invalidArgument = "-nonExistingArgument";
+        final String[] invalidArgs = new String[2];
+        invalidArgs[0] = this.tool;
+        invalidArgs[1] = invalidArgument;
+        App.main(invalidArgs);
+        assertThat(this.outStream.toString()).contains(String.join("", "Unrecognized option: ", invalidArgument));
     }
 
 }
