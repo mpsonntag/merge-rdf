@@ -11,10 +11,13 @@
 package org.g_node.mergers;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Locale;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.ConsoleAppender;
@@ -41,6 +44,7 @@ public class LktCliControllerTest {
     private final String tmpRoot = System.getProperty("java.io.tmpdir");
     private final String testFolderName = "LktCliControllerTest";
     private final Path testFileFolder = Paths.get(tmpRoot, testFolderName);
+    private final File testRdfFile = this.testFileFolder.resolve("test.ttl").toFile();
 
     /**
      * Redirect Error and Out stream.
@@ -51,6 +55,9 @@ public class LktCliControllerTest {
         this.stdout = System.out;
         this.outStream = new ByteArrayOutputStream();
         System.setOut(new PrintStream(this.outStream));
+
+        final String miniTTL = "@prefix foaf: <http://xmlns.com/foaf/0.1/> .\n\n_:a foaf:name\t\"TestName\"";
+        FileUtils.write(this.testRdfFile, miniTTL);
 
         Logger rootLogger = Logger.getRootLogger();
         rootLogger.setLevel(Level.INFO);
@@ -75,21 +82,86 @@ public class LktCliControllerTest {
     }
 
     @Test
-    public void testRunNonExistingMergeFile() {
+    public void testRunNonExistingInFile() throws Exception {
         final String useCase = "lkt";
-        final String testFileName = "iDoNotExist";
+        final String testNonExistingFile = "iDoNotExist";
 
         final String[] cliArgs = new String[5];
         cliArgs[0] = useCase;
         cliArgs[1] = "-m";
-        cliArgs[2] = testFileName;
+        cliArgs[2] = this.testRdfFile.getAbsolutePath();
         cliArgs[3] = "-i";
-        cliArgs[4] = testFileName;
+        cliArgs[4] = testNonExistingFile;
 
         App.main(cliArgs);
         assertThat(this.outStream.toString()).contains(
-                String.join("", "File ", testFileName, " does not exist.")
+                String.join("", "File ", testNonExistingFile, " does not exist.")
         );
+    }
+
+    @Test
+    public void testRunNonExistingMergeFile() throws Exception {
+        final String useCase = "lkt";
+        final String testNonExistingFile = "iDoNotExist";
+
+        final String[] cliArgs = new String[5];
+        cliArgs[0] = useCase;
+        cliArgs[1] = "-m";
+        cliArgs[2] = testNonExistingFile;
+        cliArgs[3] = "-i";
+        cliArgs[4] = this.testRdfFile.getAbsolutePath();
+
+        App.main(cliArgs);
+        assertThat(this.outStream.toString()).contains(
+                String.join("", "File ", testNonExistingFile, " does not exist.")
+        );
+    }
+
+    @Test
+    public void testSupportedOutFormat() throws Exception {
+        final String useCase = "lkt";
+        final String invalidOutputFormat = "iDoNotExist";
+        final String parserMessage = String.join("", "Unsupported output format: '",
+                                                        invalidOutputFormat.toUpperCase(Locale.ENGLISH), "'");
+
+        final String[] cliArgs = new String[7];
+        cliArgs[0] = useCase;
+        cliArgs[1] = "-m";
+        cliArgs[2] = this.testRdfFile.getAbsolutePath();
+        cliArgs[3] = "-i";
+        cliArgs[4] = this.testRdfFile.getAbsolutePath();
+        cliArgs[5] = "-f";
+        cliArgs[6] = invalidOutputFormat;
+
+        App.main(cliArgs);
+        assertThat(this.outStream.toString()).contains(parserMessage);
+    }
+
+    @Test
+    public void testValidRDFFiles() throws Exception {
+        final File testInvalidRdfFile = this.testFileFolder.resolve("test").toFile();
+        final String text = "I am a normal text file.";
+        FileUtils.write(testInvalidRdfFile, text);
+
+        final String useCase = "lkt";
+        final String parserMessage = String.join("", "Failed to load file '",
+                testInvalidRdfFile.getAbsolutePath(), "'. Ensure it is a valid RDF file.");
+
+        final String[] cliArgs = new String[5];
+        cliArgs[0] = useCase;
+        cliArgs[1] = "-m";
+        cliArgs[2] = testInvalidRdfFile.getAbsolutePath();
+        cliArgs[3] = "-i";
+        cliArgs[4] = this.testRdfFile.getAbsolutePath();
+
+        App.main(cliArgs);
+        assertThat(this.outStream.toString()).contains(parserMessage);
+
+        cliArgs[2] = this.testRdfFile.getAbsolutePath();
+        cliArgs[4] = testInvalidRdfFile.getAbsolutePath();
+
+        App.main(cliArgs);
+        assertThat(this.outStream.toString()).contains(parserMessage);
     }
 
 }
