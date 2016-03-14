@@ -10,33 +10,22 @@
 
 package org.g_node.mergers;
 
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
 import java.util.Locale;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import org.apache.log4j.Logger;
 import org.g_node.micro.commons.CliToolController;
-import org.g_node.micro.commons.FileService;
 import org.g_node.micro.commons.RDFService;
 import org.g_node.srv.CliOptionService;
 import org.g_node.srv.CtrlCheckService;
-import org.g_node.srv.ModelUtils;
 
 /**
- * Class handling the merging of RDF documents of the Use case of Kay Thurley.
- * TODO rename this class!
- * TODO add more in depth description.
+ * Class handling validating commandline input and handling the merging of RDF documents
+ * for the main use case of Kay Thurley.
  *
  * @author Michael Sonntag (sonntag@bio.lmu.de)
  */
 public class LktCliController implements CliToolController {
-    /**
-     * Access to the main LOGGER.
-     */
-    private static final Logger LOGGER = Logger.getLogger(LktCliController.class.getName());
-
     /**
      * Method returning the commandline options of the LKT merge tool.
      *
@@ -90,14 +79,8 @@ public class LktCliController implements CliToolController {
     }
 
     /**
-     * Method to merge two RDF files, one named mergeRDF, the other mainRDF. Information will be merged from the
-     * mergeRDF file with the mainRDF file. If an output filename is provided, the merged RDF graph will be
-     * saved to this output file. If no output filename is specified, a backup of the mainRDF file will be created,
-     * using the format '[date_time]_backup_[main file name]' and the mainRDF file will be replaced with the merged
-     * RDF graph.
-     * If RDF Resources with the same URI are encountered in both mergeRDF and mainRDF, this Resource including all
-     * referenced Blank Nodes will be removed from the mainRDF before the merge of the two graphs is performed. This
-     * ensures, that only the information of the mergeRDF graph will be present in the merged final graph.
+     * Method validates the commandline input for this merger. When all checks pass, all relevant information is
+     * passed to the actual class that merges the content of the two RDF files.
      *
      * @param cmd User provided {@link CommandLine} input containing information about the mergeRDF file, mainRDF file,
      *            the output filename and the output format.
@@ -127,27 +110,7 @@ public class LktCliController implements CliToolController {
             return;
         }
 
-        final Model mainModel = RDFService.openModelFromFile(mainFile);
-        final Model addModel = RDFService.openModelFromFile(mergeFile);
-
-        Model mergeModel = ModelFactory.createDefaultModel();
-
-        mergeModel.setNsPrefixes(mainModel.getNsPrefixMap());
-        mergeModel.setNsPrefixes(addModel.getNsPrefixMap());
-
-        mergeModel = ModelUtils.removePropertiesFromModel(addModel, mainModel, true);
-        mergeModel.add(addModel);
-
-        // TODO test if this conditional works as required and maybe come up with a better solution.
-        // Create backup, if the output file is the same as the main RDF file.
-        if (mainFile.equals(outputFile) && !FileService.createTimeStampBackupFile(mainFile, "yyyyMMddHHmm")) {
-            LktCliController.LOGGER.error(
-                    String.join("", "[ERROR ] While saving backup for file '", mainFile, "'")
-            );
-            return;
-        }
-
-        RDFService.saveModelToFile(outputFile, mergeModel, outputFormat);
+        LktJenaMerger.mergeAndSave(mainFile, mergeFile, outputFile, outputFormat);
     }
 
 }
