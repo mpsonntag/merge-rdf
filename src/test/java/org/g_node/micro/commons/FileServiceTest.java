@@ -58,29 +58,6 @@ public class FileServiceTest {
     }
 
     /**
-     * Check, that the method returns false when presented with a
-     * String referencing a non existing file and returns true if it is
-     * presented with String referencing an existing file.
-     * @throws Exception
-     */
-    @Test
-    public void testCheckFile() throws Exception {
-        final String testNonExistingFilePath =
-                this.testFileFolder
-                        .resolve("IdoNotExist")
-                        .toAbsolutePath().normalize().toString();
-
-        assertThat(FileService.checkFile(testNonExistingFilePath)).isFalse();
-
-        final String testExistingFilePath =
-                this.testFileFolder
-                        .resolve(this.testFileName)
-                        .toAbsolutePath().normalize().toString();
-
-        assertThat(FileService.checkFile(testExistingFilePath)).isTrue();
-    }
-
-    /**
      * Check, that a file without a file extension or a file extension that
      * is not supported, returns false and test that a file with a supported
      * file extension returns true for both checkFileExtension methods.

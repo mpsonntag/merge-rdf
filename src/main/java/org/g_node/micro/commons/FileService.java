@@ -24,18 +24,6 @@ import java.util.Set;
  */
 public final class FileService {
     /**
-     * Method for validating that a file actually exists.
-     * @param checkFile Path and filename of the provided file.
-     * @return True if the file exists, false otherwise.
-     */
-    public static boolean checkFile(final String checkFile) {
-
-        return Files.exists(Paths.get(checkFile))
-                && Files.exists(Paths.get(checkFile).toAbsolutePath());
-
-    }
-
-    /**
      * Method for validating that the provided file is of a supported file extension.
      * @param checkFile Filename of the provided file.
      * @param fileExtensions List containing all supported file extensions.

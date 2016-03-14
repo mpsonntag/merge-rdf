@@ -10,6 +10,8 @@
 
 package org.g_node.srv;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Locale;
 import java.util.Set;
 import org.apache.jena.riot.RiotException;
@@ -37,7 +39,7 @@ public final class CtrlCheckService {
         CtrlCheckService.LOGGER.info(
                 String.join("", "Checking file '", file, "'...")
         );
-        if (!FileService.checkFile(file)) {
+        if (!Files.exists(Paths.get(file))) {
             CtrlCheckService.LOGGER.error(
                     String.join("", "File ", file, " does not exist.")
             );
