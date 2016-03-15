@@ -13,6 +13,8 @@ package org.g_node.micro.commons;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.query.ResultSetFormatter;
 import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.sparql.util.Context;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -21,8 +23,21 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import org.apache.jena.atlas.io.IO;
+import org.apache.jena.atlas.web.ContentType;
+import org.apache.jena.atlas.web.TypedInputStream;
+import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFFormat;
+import org.apache.jena.riot.RDFLanguages;
+import org.apache.jena.riot.RDFParserRegistry;
+import org.apache.jena.riot.ReaderRIOT;
+import org.apache.jena.riot.ReaderRIOTFactory;
+import org.apache.jena.riot.RiotException;
+import org.apache.jena.riot.SysRIOT;
+import org.apache.jena.riot.WebContent;
+import org.apache.jena.riot.system.StreamRDF;
+import org.apache.jena.riot.system.StreamRDFLib;
 import org.apache.log4j.Logger;
 
 /**
@@ -83,6 +98,58 @@ public final class RDFService {
      */
     public static Model openModelFromFile(final String fileName) {
         return RDFDataMgr.loadModel(fileName);
+    }
+
+    /**
+     * This method is required, since Jena's RDFDataMgr.loadModel does not close a file stream properly,
+     * if the content type of a file cannot be determined. Only after the  program is closed, the file
+     * will be accessible again. Maybe this issue will be resolved in a later Apache Jena version.
+     * @param uri Uri of the file to be checked.
+     * @return True if file can be parsed as RDF or false if ot cannot.
+     */
+    public static boolean isValidRdfFile(final String uri) {
+        final Model m = ModelFactory.createDefaultModel();
+
+        final String base = SysRIOT.chooseBaseIRI(uri);
+        final Lang hintLang = RDFLanguages.filenameToLang(uri);
+        final Context context = null;
+        final StreamRDF dest = StreamRDFLib.graph(m.getGraph());
+
+        final TypedInputStream in = RDFDataMgr.open(uri, context);
+        try {
+            if (in == null) {
+                throw new RiotException(String.join("", "Not found: ", uri));
+            }
+
+            final ContentType ct = WebContent.determineCT(in.getContentType(), hintLang, base);
+            if (ct == null) {
+                throw new RiotException(
+                        String.join("", "Failed to determine the content type: (URI=",
+                                base, " : stream=", in.getContentType(), ")"
+                        ));
+            }
+
+            final Lang lang = RDFLanguages.contentTypeToLang(ct);
+            ReaderRIOT reader = null;
+            if (lang != null) {
+                final ReaderRIOTFactory r = RDFParserRegistry.getFactory(lang);
+                if (r != null) {
+                    reader = r.create(lang);
+                }
+            }
+
+            if (reader == null) {
+                throw new RiotException(
+                        String.join("", "No parser registered for content type: ", ct.getContentType()));
+            }
+            reader.read(in, base, ct, dest, context);
+
+            IO.close(in);
+        } catch (RiotException e) {
+            IO.close(in);
+            throw e;
+        }
+        return true;
     }
 
     /**
