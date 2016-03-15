@@ -16,6 +16,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import org.apache.commons.io.FileUtils;
 import org.g_node.App;
@@ -79,8 +81,10 @@ public class LktJenaMergerTest {
         App.main(cliArgs);
         assertThat(Files.exists(outputFile)).isTrue();
 
-        final List<String> readFile = Files.lines(outputFile).collect(Collectors.toList());
+        final Stream<String> fileStream = Files.lines(outputFile);
+        final List<String> readFile = fileStream.collect(Collectors.toList());
         assertThat(readFile.size()).isEqualTo(5);
+        fileStream.close();
     }
 
     @Test
