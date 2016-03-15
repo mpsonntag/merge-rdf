@@ -120,26 +120,22 @@ public final class CtrlCheckService {
      * Method tries to open a supported file assuming, that it is an RDF file.
      * If a RiotException occurs it most likely is not a valid RDF file and a
      * corresponding message is displayed and logged.
-     * NOTE: If the input file has a file extension, that is not supported by
-     * Apache Jena e.g. a file with the file ending "txt", the file will not be
-     * closed properly after the RiotException has been raised. Only after the
-     * program is closed, the file will be available again. Maybe this issue will be
-     * resolved in a later Apache Jena version.
-     * @param file Path and filename of the file that is supposed to be checked.
+     * @param uri Path and filename of the file that is supposed to be checked.
      * @return True if the file can be opened and the model loaded, false if not.
      */
-    public static boolean isValidRdfFile(final String file) {
+    public static boolean isValidRdfFile(final String uri) {
+        boolean isValid;
         try {
-            RDFService.openModelFromFile(file);
+            isValid = RDFService.isValidRdfFile(uri);
         } catch (RiotException e) {
             CtrlCheckService.LOGGER.error(
                     String.join("",
-                            "Failed to load file '", file, "'. Ensure it is a valid RDF file.",
+                            "Failed to load file '", uri, "'. Ensure it is a valid RDF file.",
                             "\n\t\tActual error message: ", e.getMessage())
             );
             return false;
         }
-        return true;
+        return isValid;
     }
 
 }
