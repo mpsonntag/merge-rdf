@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.codec.digest.DigestUtils;
 
 /**
- * Class providing utility methods to g-node microservice applications.
+ * Class providing utility methods to G-Node microservice applications.
  *
  * @author Michael Sonntag (sonntag@bio.lmu.de)
  */

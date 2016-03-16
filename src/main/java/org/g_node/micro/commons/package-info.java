@@ -7,7 +7,7 @@
  * modification, are permitted under the terms of the BSD License. See
  * LICENSE file in the root of the Project.
  *
- * Provides interfaces, utility classes and methods for the g-node RDF microservice framework.
+ * Provides interfaces, utility classes and methods for the G-Node RDF microservice framework.
  */
 
 package org.g_node.micro.commons;
