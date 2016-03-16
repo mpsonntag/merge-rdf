@@ -24,14 +24,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import org.apache.commons.io.FileUtils;
-import org.apache.jena.riot.RiotException;
-import org.apache.jena.riot.RiotNotFoundException;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -205,26 +202,25 @@ public class RDFServiceTest {
         final String nonExistingFile = "iDoNotExistAtAll";
         final String nonExistingError = String.join("", "Not found: ", nonExistingFile);
 
-        final Throwable thrownNonExisting = catchThrowable(() -> RDFService.isValidRdfFile(nonExistingFile));
-        assertThat(thrownNonExisting).isInstanceOf(RiotNotFoundException.class)
-                .hasMessageContaining(nonExistingError);
+        boolean isNonExistingValidRdf = RDFService.isValidRdfFile(nonExistingFile);
+        assertThat(isNonExistingValidRdf).isFalse();
+        assertThat(this.outStream.toString()).contains(nonExistingError);
 
         final File nonRdfFile = this.testFileFolder.resolve("test.txt").toFile();
         FileUtils.write(nonRdfFile, "I am not an RDF file!");
         final String nonRdfError = "Failed to determine the content type";
 
-        final Throwable thrownNonRdf = catchThrowable(() -> RDFService.isValidRdfFile(nonRdfFile.getAbsolutePath()));
-        assertThat(thrownNonRdf).isInstanceOf(RiotException.class)
-                .hasMessageContaining(nonRdfError);
+        boolean isNonRdfFileValidRdf = RDFService.isValidRdfFile(nonRdfFile.getAbsolutePath());
+        assertThat(isNonRdfFileValidRdf).isFalse();
+        assertThat(this.outStream.toString()).contains(nonRdfError);
 
         final File invalidRdfFile = this.testFileFolder.resolve("test.ttl").toFile();
         FileUtils.write(invalidRdfFile, "I am an invalid RDF file!");
         final String invalidRdfError = "Out of place: [KEYWORD";
 
-        final Throwable thrownInvalidRdf = catchThrowable(
-                () -> RDFService.isValidRdfFile(invalidRdfFile.getAbsolutePath()));
-        assertThat(thrownInvalidRdf).isInstanceOf(RiotException.class)
-                .hasMessageContaining(invalidRdfError);
+        boolean isInvalidRdfFileValidRdf = RDFService.isValidRdfFile(invalidRdfFile.getAbsolutePath());
+        assertThat(isInvalidRdfFileValidRdf).isFalse();
+        assertThat(this.outStream.toString()).contains(invalidRdfError);
 
         final String miniTTL = "@prefix foaf:  <http://xmlns.com/foaf/0.1/> . _:a foaf:name \"TestName\" .\n";
         final File validRdfFile = this.testFileFolder.resolve("test.ttl").toFile();
