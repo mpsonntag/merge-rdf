@@ -106,7 +106,7 @@ public class LktCliController implements CliToolController {
             outputFile = String.join("", outputFile, ".", RDFService.RDF_FORMAT_EXTENSION.get(outputFormat));
         }
 
-        if (!CtrlCheckService.isValidRdfFile(mainFile) || !CtrlCheckService.isValidRdfFile(mergeFile)) {
+        if (!RDFService.isValidRdfFile(mainFile) || !RDFService.isValidRdfFile(mergeFile)) {
             return;
         }
 
