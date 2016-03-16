@@ -14,10 +14,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Locale;
 import java.util.Set;
-import org.apache.jena.riot.RiotException;
 import org.apache.log4j.Logger;
 import org.g_node.micro.commons.FileService;
-import org.g_node.micro.commons.RDFService;
 
 /**
  * Class providing checks common to mergers implemented in this service.
@@ -114,28 +112,6 @@ public final class CtrlCheckService {
             return false;
         }
         return true;
-    }
-
-    /**
-     * Method tries to open a supported file assuming, that it is an RDF file.
-     * If a RiotException occurs it most likely is not a valid RDF file and a
-     * corresponding message is displayed and logged.
-     * @param uri Path and filename of the file that is supposed to be checked.
-     * @return True if the file can be opened and the model loaded, false if not.
-     */
-    public static boolean isValidRdfFile(final String uri) {
-        boolean isValid;
-        try {
-            isValid = RDFService.isValidRdfFile(uri);
-        } catch (RiotException e) {
-            CtrlCheckService.LOGGER.error(
-                    String.join("",
-                            "Failed to load file '", uri, "'. Ensure it is a valid RDF file.",
-                            "\n\t\tActual error message: ", e.getMessage())
-            );
-            return false;
-        }
-        return isValid;
     }
 
 }
