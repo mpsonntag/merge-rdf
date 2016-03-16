@@ -101,11 +101,13 @@ public final class RDFService {
     }
 
     /**
-     * This method is required, since Jena's RDFDataMgr.loadModel does not close a file stream properly,
-     * if the content type of a file cannot be determined. Only after the  program is closed, the file
-     * will be accessible again. Maybe this issue will be resolved in a later Apache Jena version.
+     * Method tries to open a supported file, testing if it is a valid RDF file.
+     * The implementation of the method is implemented as it is, since Jena's RDFDataMgr.loadModel does
+     * not close a file stream properly, if the content type of a file cannot be determined. Only after the
+     * program is closed, the file will be accessible again. Maybe this issue will be resolved in
+     * a later Apache Jena version.
      * @param uri Uri of the file to be checked.
-     * @return True if file can be parsed as RDF or false if ot cannot.
+     * @return True if file can be parsed as RDF or false if not.
      */
     public static boolean isValidRdfFile(final String uri) {
         final Model m = ModelFactory.createDefaultModel();
@@ -115,8 +117,9 @@ public final class RDFService {
         final Context context = null;
         final StreamRDF dest = StreamRDFLib.graph(m.getGraph());
 
-        final TypedInputStream in = RDFDataMgr.open(uri, context);
+        TypedInputStream in = null;
         try {
+            in = RDFDataMgr.open(uri, context);
             if (in == null) {
                 throw new RiotException(String.join("", "Not found: ", uri));
             }
@@ -147,7 +150,11 @@ public final class RDFService {
             IO.close(in);
         } catch (RiotException e) {
             IO.close(in);
-            throw e;
+            RDFService.LOGGER.error(
+                    String.join("",
+                            "Failed to load file '", uri, "'. Ensure it is a valid RDF file.",
+                            "\n\t\tActual error message: ", e.getMessage()));
+            return false;
         }
         return true;
     }
