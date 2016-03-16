@@ -21,7 +21,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.io.FileUtils;
 import static org.assertj.core.api.Assertions.assertThat;
-import org.g_node.micro.commons.RDFService;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -159,34 +158,6 @@ public class CtrlCheckServiceTest {
         assertThat(this.outStream.toString().contains(
                 String.join("", inValidValue, errorMessage)
         ));
-    }
-
-    /**
-     * Test that the method checks that the method returns true in case of valid RDF files and false of
-     * files that are not RDF files. Test, that the method returns proper error messages in
-     * case of invalid RDF files.
-     * @throws Exception
-     */
-    @Test
-    public void testIsValidRdfFile() throws Exception {
-        final String miniTTL = "@prefix foaf: <http://xmlns.com/foaf/0.1/> .\n\n_:a foaf:name\t\"TestName\"";
-        final File validRdfFile = this.testFileFolder.resolve("test.ttl").toFile();
-        FileUtils.write(validRdfFile, miniTTL);
-
-        final String errorMessage = "Failed to load file '";
-
-        assertThat(CtrlCheckService.isValidRdfFile(validRdfFile.getAbsolutePath())).isTrue();
-
-        final File inValidRdfFile = this.testFileFolder.resolve("test.ttl").toFile();
-        FileUtils.write(inValidRdfFile, "Invalid RDF file");
-
-        assertThat(CtrlCheckService.isValidRdfFile(inValidRdfFile.getAbsolutePath())).isFalse();
-        assertThat(this.outStream.toString().contains(
-                String.join("", errorMessage, inValidRdfFile.getAbsolutePath())));
-
-        assertThat(CtrlCheckService.isValidRdfFile(this.testFileName)).isFalse();
-        assertThat(this.outStream.toString().contains(
-                String.join("", errorMessage, this.testFileName)));
     }
 
 }
