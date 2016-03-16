@@ -8,7 +8,7 @@
  * LICENSE file in the root of the Project.
  */
 
-package org.g_node.micro.commons;
+package org.g_node.micro.rdf;
 
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.query.ResultSetFormatter;
@@ -39,13 +39,14 @@ import org.apache.jena.riot.WebContent;
 import org.apache.jena.riot.system.StreamRDF;
 import org.apache.jena.riot.system.StreamRDFLib;
 import org.apache.log4j.Logger;
+import org.g_node.micro.commons.FileService;
 
 /**
  * Main service class for opening data from and saving data to an RDF file.
  *
  * @author Michael Sonntag (sonntag@bio.lmu.de)
  */
-public final class RDFService {
+public final class RdfFileServiceJena {
     /**
      * Map returning the RDF formats supported by this service.
      */
@@ -87,7 +88,7 @@ public final class RDFService {
     /**
      * Access to the main LOGGER.
      */
-    private static final Logger LOGGER = Logger.getLogger(RDFService.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(RdfFileServiceJena.class.getName());
 
     /**
      * Open an RDF file, load the data and return the RDF model. Method will not check,
@@ -150,7 +151,7 @@ public final class RDFService {
             IO.close(in);
         } catch (RiotException e) {
             IO.close(in);
-            RDFService.LOGGER.error(
+            RdfFileServiceJena.LOGGER.error(
                     String.join("",
                             "Failed to load file '", uri, "'. Ensure it is a valid RDF file.",
                             "\n\t\tActual error message: ", e.getMessage()));
@@ -161,7 +162,7 @@ public final class RDFService {
 
     /**
      * Write an RDF model to an output file using an RDF file format supported by this tool, specified
-     * in {@link RDFService#RDF_FORMAT_MAP}.
+     * in {@link RdfFileServiceJena#RDF_FORMAT_MAP}.
      * This method will overwrite any files with the same path and filename.
      * @param fileName Path and filename of the output file.
      * @param model RDF model that's supposed to be written to the file.
@@ -173,15 +174,15 @@ public final class RDFService {
 
         try {
             final FileOutputStream fos = new FileOutputStream(file);
-            RDFService.LOGGER.info(
+            RdfFileServiceJena.LOGGER.info(
                     String.join(
                             "", "Writing data to RDF file '", fileName, "' using format '", format, "'"
                     )
             );
-            if (RDFService.RDF_FORMAT_MAP.containsKey(format)) {
-                RDFDataMgr.write(fos, model, RDFService.RDF_FORMAT_MAP.get(format));
+            if (RdfFileServiceJena.RDF_FORMAT_MAP.containsKey(format)) {
+                RDFDataMgr.write(fos, model, RdfFileServiceJena.RDF_FORMAT_MAP.get(format));
             } else {
-                RDFService.LOGGER.error(
+                RdfFileServiceJena.LOGGER.error(
                         String.join("", "Error when saving output file: output format '",
                                 format, "' is not supported.")
                 );
@@ -189,11 +190,11 @@ public final class RDFService {
             try {
                 fos.close();
             } catch (IOException e) {
-                RDFService.LOGGER.error("Error closing file stream.");
+                RdfFileServiceJena.LOGGER.error("Error closing file stream.");
                 e.printStackTrace();
             }
         } catch (FileNotFoundException exc) {
-            RDFService.LOGGER.error(String.join("", "Could not open output file ", fileName));
+            RdfFileServiceJena.LOGGER.error(String.join("", "Could not open output file ", fileName));
         }
     }
     /**
@@ -223,7 +224,7 @@ public final class RDFService {
 
                 final FileOutputStream fop = new FileOutputStream(file);
 
-                RDFService.LOGGER.info(String.join("", "Write query to file...\t\t(", outFile, ")"));
+                RdfFileServiceJena.LOGGER.info(String.join("", "Write query to file...\t\t(", outFile, ")"));
 
                 if ("CSV".equals(resFileFormat)) {
                     ResultSetFormatter.outputAsCSV(fop, result);
@@ -233,12 +234,12 @@ public final class RDFService {
                 fop.close();
 
             } catch (IOException e) {
-                RDFService.LOGGER.error(String.join("", "Cannot write to file...\t\t(", outFile, ")"));
-                RDFService.LOGGER.error(e.getMessage());
+                RdfFileServiceJena.LOGGER.error(String.join("", "Cannot write to file...\t\t(", outFile, ")"));
+                RdfFileServiceJena.LOGGER.error(e.getMessage());
                 e.printStackTrace();
             }
         } else {
-            RDFService.LOGGER.error(
+            RdfFileServiceJena.LOGGER.error(
                     String.join("", "Output file format ", resultFileFormat, " is not supported by this service.")
             );
         }

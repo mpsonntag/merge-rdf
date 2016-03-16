@@ -11,7 +11,7 @@
 package org.g_node.srv;
 
 import org.apache.commons.cli.Option;
-import org.g_node.micro.commons.RDFService;
+import org.g_node.micro.rdf.RdfFileServiceJena;
 
 /**
  * Class provides CLI {@link Option}s that are common
@@ -70,7 +70,7 @@ public final class CliOptionService {
 
         final String defaultDesc = String.join("",
                 "Optional: format of the RDF file that will be written.\n",
-                "Supported file formats: ", RDFService.RDF_FORMAT_MAP.keySet().toString(),
+                "Supported file formats: ", RdfFileServiceJena.RDF_FORMAT_MAP.keySet().toString(),
                 "\nDefault setting is the Turtle (TTL) format.");
         final String desc = !altDesc.isEmpty() ? altDesc : defaultDesc;
 

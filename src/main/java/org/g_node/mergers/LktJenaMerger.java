@@ -14,7 +14,7 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import org.apache.log4j.Logger;
 import org.g_node.micro.commons.FileService;
-import org.g_node.micro.commons.RDFService;
+import org.g_node.micro.rdf.RdfFileServiceJena;
 import org.g_node.micro.rdf.RdfUtilsJena;
 
 /**
@@ -45,8 +45,8 @@ public class LktJenaMerger {
     public static void mergeAndSave(final String mainFile, final String mergeFile,
                              final String outputFile, final String outputFormat) {
 
-        final Model mainModel = RDFService.openModelFromFile(mainFile);
-        final Model addModel = RDFService.openModelFromFile(mergeFile);
+        final Model mainModel = RdfFileServiceJena.openModelFromFile(mainFile);
+        final Model addModel = RdfFileServiceJena.openModelFromFile(mergeFile);
 
         Model mergeModel = ModelFactory.createDefaultModel();
 
@@ -65,6 +65,6 @@ public class LktJenaMerger {
             return;
         }
 
-        RDFService.saveModelToFile(outputFile, mergeModel, outputFormat);
+        RdfFileServiceJena.saveModelToFile(outputFile, mergeModel, outputFormat);
     }
 }

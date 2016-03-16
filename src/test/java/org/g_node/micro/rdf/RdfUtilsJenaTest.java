@@ -12,16 +12,13 @@ package org.g_node.micro.rdf;
 
 import java.net.URL;
 import java.nio.file.Paths;
-
 import static org.assertj.core.api.Assertions.assertThat;
-
 import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.vocabulary.RDFS;
-import org.g_node.micro.commons.RDFService;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -72,7 +69,7 @@ public class RdfUtilsJenaTest {
         final URL testFileNameURL = this.getClass().getResource("/testFiles/RemoveAnonNodeTest.ttl");
         final String testFileName = Paths.get(testFileNameURL.toURI()).toFile().toString();
 
-        this.baseModel = RDFService.openModelFromFile(testFileName);
+        this.baseModel = RdfFileServiceJena.openModelFromFile(testFileName);
 
         assertThat(this.baseModel.size()).isEqualTo(7);
 

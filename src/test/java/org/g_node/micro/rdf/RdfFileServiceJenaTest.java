@@ -8,7 +8,7 @@
  * LICENSE file in the root of the Project.
  */
 
-package org.g_node.micro.commons;
+package org.g_node.micro.rdf;
 
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryExecution;
@@ -34,13 +34,13 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Unit tests for the {@link RDFService} class. Output and Error streams are redirected
+ * Unit tests for the {@link RdfFileServiceJena} class. Output and Error streams are redirected
  * from the console to a different PrintStream and reset after tests are finished
  * to avoid mixing tool error messages with actual test error messages.
  *
  * @author Michael Sonntag (sonntag@bio.lmu.de)
  */
-public class RDFServiceTest {
+public class RdfFileServiceJenaTest {
 
     private ByteArrayOutputStream outStream = new ByteArrayOutputStream();
     private PrintStream stdout;
@@ -106,14 +106,14 @@ public class RDFServiceTest {
 
         final Model model = ModelFactory.createDefaultModel();
 
-        RDFService.saveModelToFile("", model, outFileFormat);
+        RdfFileServiceJena.saveModelToFile("", model, outFileFormat);
         assertThat(this.outStream.toString()).startsWith("[ERROR] Could not open output file");
 
-        RDFService.saveModelToFile(outFilePath, model, outFileFormat);
+        RdfFileServiceJena.saveModelToFile(outFilePath, model, outFileFormat);
         assertThat(this.outStream.toString()).contains(testString);
 
         final String unsupportedFormat = "iDoNotExist";
-        RDFService.saveModelToFile(outFilePath, model, unsupportedFormat);
+        RdfFileServiceJena.saveModelToFile(outFilePath, model, unsupportedFormat);
         assertThat(this.outStream.toString()).contains(String.join("", unsupportedFormat, "' is not supported."));
     }
 
@@ -126,14 +126,14 @@ public class RDFServiceTest {
         final File currEmptyTestFile = this.testFileFolder.resolve("testEmpty.ttl").toFile();
         FileUtils.write(currEmptyTestFile, "");
 
-        Model emptyModel = RDFService.openModelFromFile(currEmptyTestFile.toString());
+        Model emptyModel = RdfFileServiceJena.openModelFromFile(currEmptyTestFile.toString());
         assertThat(emptyModel.isEmpty()).isTrue();
 
         final String miniTTL = "@prefix foaf: <http://xmlns.com/foaf/0.1/> .\n\n_:a foaf:name\t\"TestName\"";
         final File currTestFile = this.testFileFolder.resolve("test.ttl").toFile();
         FileUtils.write(currTestFile, miniTTL);
 
-        Model m = RDFService.openModelFromFile(currTestFile.toString());
+        Model m = RdfFileServiceJena.openModelFromFile(currTestFile.toString());
         assertThat(m.isEmpty()).isFalse();
     }
 
@@ -151,7 +151,7 @@ public class RDFServiceTest {
         final String queryString = String.join("", "prefix foaf:  <http://xmlns.com/foaf/0.1/> ",
                 "SELECT ?getname WHERE { ?node foaf:name ?getname . }");
 
-        final Model queryModel = RDFService.openModelFromFile(currTestFile.getAbsolutePath());
+        final Model queryModel = RdfFileServiceJena.openModelFromFile(currTestFile.getAbsolutePath());
         final Query query = QueryFactory.create(queryString);
 
         try (QueryExecution qexec = QueryExecutionFactory.create(query, queryModel)) {
@@ -159,7 +159,7 @@ public class RDFServiceTest {
 
             // Test that an invalid file format exits the method with the proper error message.
             final String invalidOutputFormat = "iDoNotExist";
-            RDFService.saveResultsToSupportedFile(result, invalidOutputFormat, "");
+            RdfFileServiceJena.saveResultsToSupportedFile(result, invalidOutputFormat, "");
             assertThat(this.outStream.toString()).contains(
                     String.join("", invalidOutputFormat, " is not supported by this service.")
             );
@@ -169,7 +169,7 @@ public class RDFServiceTest {
             // Further test, that the method saved two lines to the output file.
             final String validOutputFormat = "csv";
             final Path outFileNoExtension = this.testFileFolder.resolve("out.txt");
-            RDFService.saveResultsToSupportedFile(result, validOutputFormat, outFileNoExtension.toString());
+            RdfFileServiceJena.saveResultsToSupportedFile(result, validOutputFormat, outFileNoExtension.toString());
 
             final Path outFileNameAddedFileExtension = Paths.get(
                     String.join("", outFileNoExtension.toString(), ".", validOutputFormat));
@@ -181,7 +181,7 @@ public class RDFServiceTest {
             // Test that a non existing output file with the proper file extension creates
             // the output file with an unchanged file name.
             final Path outFileExtension = this.testFileFolder.resolve(String.join("", "out.", validOutputFormat));
-            RDFService.saveResultsToSupportedFile(result, validOutputFormat, outFileExtension.toString());
+            RdfFileServiceJena.saveResultsToSupportedFile(result, validOutputFormat, outFileExtension.toString());
             assertThat(Files.exists(outFileExtension)).isTrue();
 
             // Test that an existing output file is overwritten.
@@ -189,7 +189,7 @@ public class RDFServiceTest {
             try (QueryExecution qexec_next = QueryExecutionFactory.create(query, queryModel)) {
                 final ResultSet result_next = qexec_next.execSelect();
 
-                RDFService.saveResultsToSupportedFile(result_next, validOutputFormat, outFileExtension.toString());
+                RdfFileServiceJena.saveResultsToSupportedFile(result_next, validOutputFormat, outFileExtension.toString());
                 assertThat(Files.exists(outFileExtension)).isTrue();
                 assertThat(Files.readAllLines(outFileExtension).size()).isEqualTo(2);
             }
@@ -202,7 +202,7 @@ public class RDFServiceTest {
         final String nonExistingFile = "iDoNotExistAtAll";
         final String nonExistingError = String.join("", "Not found: ", nonExistingFile);
 
-        boolean isNonExistingValidRdf = RDFService.isValidRdfFile(nonExistingFile);
+        boolean isNonExistingValidRdf = RdfFileServiceJena.isValidRdfFile(nonExistingFile);
         assertThat(isNonExistingValidRdf).isFalse();
         assertThat(this.outStream.toString()).contains(nonExistingError);
 
@@ -210,7 +210,7 @@ public class RDFServiceTest {
         FileUtils.write(nonRdfFile, "I am not an RDF file!");
         final String nonRdfError = "Failed to determine the content type";
 
-        boolean isNonRdfFileValidRdf = RDFService.isValidRdfFile(nonRdfFile.getAbsolutePath());
+        boolean isNonRdfFileValidRdf = RdfFileServiceJena.isValidRdfFile(nonRdfFile.getAbsolutePath());
         assertThat(isNonRdfFileValidRdf).isFalse();
         assertThat(this.outStream.toString()).contains(nonRdfError);
 
@@ -218,7 +218,7 @@ public class RDFServiceTest {
         FileUtils.write(invalidRdfFile, "I am an invalid RDF file!");
         final String invalidRdfError = "Out of place: [KEYWORD";
 
-        boolean isInvalidRdfFileValidRdf = RDFService.isValidRdfFile(invalidRdfFile.getAbsolutePath());
+        boolean isInvalidRdfFileValidRdf = RdfFileServiceJena.isValidRdfFile(invalidRdfFile.getAbsolutePath());
         assertThat(isInvalidRdfFileValidRdf).isFalse();
         assertThat(this.outStream.toString()).contains(invalidRdfError);
 
@@ -226,7 +226,7 @@ public class RDFServiceTest {
         final File validRdfFile = this.testFileFolder.resolve("test.ttl").toFile();
         FileUtils.write(validRdfFile, miniTTL);
 
-        final boolean isValidRdfValid = RDFService.isValidRdfFile(validRdfFile.getAbsolutePath());
+        final boolean isValidRdfValid = RdfFileServiceJena.isValidRdfFile(validRdfFile.getAbsolutePath());
         assertThat(isValidRdfValid).isTrue();
     }
 
