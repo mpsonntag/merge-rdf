@@ -15,7 +15,7 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 import org.apache.log4j.Logger;
 import org.g_node.micro.commons.FileService;
 import org.g_node.micro.commons.RDFService;
-import org.g_node.srv.ModelUtils;
+import org.g_node.micro.rdf.RdfUtilsJena;
 
 /**
  * Class handling the merging of RDF documents using the Apache Jena RDF suite.
@@ -53,7 +53,7 @@ public class LktJenaMerger {
         mergeModel.setNsPrefixes(mainModel.getNsPrefixMap());
         mergeModel.setNsPrefixes(addModel.getNsPrefixMap());
 
-        mergeModel = ModelUtils.removePropertiesFromModel(addModel, mainModel, true);
+        mergeModel = RdfUtilsJena.removePropertiesFromModel(addModel, mainModel, true);
         mergeModel.add(addModel);
 
         // TODO test if this conditional works as required and maybe come up with a better solution.
