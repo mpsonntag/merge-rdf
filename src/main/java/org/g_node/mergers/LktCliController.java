@@ -11,6 +11,8 @@
 package org.g_node.mergers;
 
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
@@ -86,6 +88,10 @@ public class LktCliController implements CliToolController {
      *            the output filename and the output format.
      */
     public final void run(final CommandLine cmd) {
+
+        final Set<String> rdfFormatsKeyMap = RdfFileServiceJena.RDF_FORMAT_MAP.keySet();
+        final Map<String, String> rdfFormatExtensionMap = RdfFileServiceJena.RDF_FORMAT_EXTENSION;
+
         final String mergeFile = cmd.getOptionValue("i");
         if (!CtrlCheckService.isExistingFile(mergeFile)) {
             return;
@@ -97,13 +103,13 @@ public class LktCliController implements CliToolController {
         }
 
         final String outputFormat = cmd.getOptionValue("f", "TTL").toUpperCase(Locale.ENGLISH);
-        if (!CtrlCheckService.isSupportedOutputFormat(outputFormat, RdfFileServiceJena.RDF_FORMAT_MAP.keySet())) {
+        if (!CtrlCheckService.isSupportedOutputFormat(outputFormat, rdfFormatsKeyMap)) {
             return;
         }
 
         String outputFile = cmd.getOptionValue("o", mainFile);
-        if (!outputFile.toLowerCase().endsWith(RdfFileServiceJena.RDF_FORMAT_EXTENSION.get(outputFormat))) {
-            outputFile = String.join("", outputFile, ".", RdfFileServiceJena.RDF_FORMAT_EXTENSION.get(outputFormat));
+        if (!outputFile.toLowerCase().endsWith(rdfFormatExtensionMap.get(outputFormat))) {
+            outputFile = String.join("", outputFile, ".", rdfFormatExtensionMap.get(outputFormat));
         }
 
         if (!RdfFileServiceJena.isValidRdfFile(mainFile) || !RdfFileServiceJena.isValidRdfFile(mergeFile)) {
