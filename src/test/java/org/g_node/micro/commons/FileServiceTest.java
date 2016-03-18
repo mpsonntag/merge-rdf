@@ -120,6 +120,7 @@ public class FileServiceTest {
 
     /**
      * Check that a file copy of a given file is created using the proper timestamp as part of the filename.
+     * Also check, that the method returns false if the file already exists.
      * @throws Exception
      */
     @Test
@@ -134,6 +135,10 @@ public class FileServiceTest {
         final String backupPath = mainPath.toString().replaceFirst(fileName, backupName);
 
         assertThat(Files.exists(Paths.get(backupPath).toAbsolutePath())).isTrue();
+
+        // Check that a backup file with the same filename cannot be created.
+        assertThat(FileService.createTimeStampBackupFile(mainPath.toString(), timeStamp))
+                .isFalse();
     }
 
 }
