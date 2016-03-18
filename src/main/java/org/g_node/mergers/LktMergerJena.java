@@ -22,11 +22,11 @@ import org.g_node.micro.rdf.RdfUtilsJena;
  *
  * @author Michael Sonntag (sonntag@bio.lmu.de)
  */
-public class LktJenaMerger {
+public class LktMergerJena {
     /**
      * Access to the main LOGGER.
      */
-    private static final Logger LOGGER = Logger.getLogger(LktJenaMerger.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(LktMergerJena.class.getName());
 
     /**
      * Method merges two RDF files, one named mergeRDF, the other mainRDF. Information will be merged from the
@@ -42,8 +42,8 @@ public class LktJenaMerger {
      * @param outputFile Name and Path of the output file.
      * @param outputFormat RDF format of the output file.
      */
-    public static void mergeAndSave(final String mainFile, final String mergeFile,
-                             final String outputFile, final String outputFormat) {
+    public static void runMerger(final String mainFile, final String mergeFile,
+                                 final String outputFile, final String outputFormat) {
 
         final Model mainModel = RdfFileServiceJena.openModelFromFile(mainFile);
         final Model addModel = RdfFileServiceJena.openModelFromFile(mergeFile);
@@ -59,7 +59,7 @@ public class LktJenaMerger {
         // TODO test if this conditional works as required and maybe come up with a better solution.
         // Create backup, if the output file is the same as the main RDF file.
         if (mainFile.equals(outputFile) && !FileService.createTimeStampBackupFile(mainFile, "yyyyMMddHHmm")) {
-            LktJenaMerger.LOGGER.error(
+            LktMergerJena.LOGGER.error(
                     String.join("", "[ERROR ] While saving backup for file '", mainFile, "'")
             );
             return;

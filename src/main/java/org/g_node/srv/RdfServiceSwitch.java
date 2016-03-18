@@ -12,7 +12,7 @@ package org.g_node.srv;
 
 import java.util.Map;
 import java.util.Set;
-import org.g_node.mergers.LktJenaMerger;
+import org.g_node.mergers.LktMergerJena;
 import org.g_node.micro.rdf.RdfFileServiceJena;
 
 /**
@@ -51,7 +51,7 @@ public final class RdfServiceSwitch {
      */
     public static void runMerger(final String mainFile, final String mergeFile,
                                  final String outputFile, final String outputFormat) {
-        LktJenaMerger.mergeAndSave(mainFile, mergeFile, outputFile, outputFormat);
+        LktMergerJena.runMerger(mainFile, mergeFile, outputFile, outputFormat);
     }
 
 }

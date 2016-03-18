@@ -17,7 +17,6 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import org.apache.commons.io.FileUtils;
 import org.g_node.App;
@@ -26,14 +25,14 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Unit tests for the LktJenaMerger class. Two small RDF files are created and used to test the merge method.
+ * Unit tests for the {@link LktMergerJena} class. Two small RDF files are created and used to test the merge method.
  *
  * @author Michael Sonntag (sonntag@bio.lmu.de)
  */
-public class LktJenaMergerTest {
+public class LktMergerJenaTest {
 
     private final String tmpRoot = System.getProperty("java.io.tmpdir");
-    private final String testFolderName = "LktCliControllerTest";
+    private final String testFolderName = "LktMergerJena";
     private final Path testFileFolder = Paths.get(tmpRoot, testFolderName);
     private final String testMainRdfFileName = "testMain.ttl";
     private final File testMainRdfFile = this.testFileFolder.resolve(this.testMainRdfFileName).toFile();
@@ -41,7 +40,7 @@ public class LktJenaMergerTest {
     private final File testMergeRdfFile = this.testFileFolder.resolve(this.testMergeRdfFileName).toFile();
 
     /**
-     * Set test RDF files for the merge.
+     * Set up test RDF files for the merge within the test folder.
      * @throws Exception
      */
     @Before
@@ -54,7 +53,7 @@ public class LktJenaMergerTest {
     }
 
     /**
-     * Clean up test folder.
+     * Remove test folder including all temporary files.
      * @throws Exception
      */
     @After
