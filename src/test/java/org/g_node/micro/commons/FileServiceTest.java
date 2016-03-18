@@ -10,13 +10,19 @@
 
 package org.g_node.micro.commons;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Set;
 import org.apache.commons.io.FileUtils;
+import org.apache.log4j.ConsoleAppender;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PatternLayout;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.After;
 import org.junit.Before;
@@ -28,6 +34,9 @@ import org.junit.Test;
  * @author Michael Sonntag (sonntag@bio.lmu.de)
  */
 public class FileServiceTest {
+
+    private ByteArrayOutputStream outStream;
+    private PrintStream stdout;
 
     private final String tmpRoot = System.getProperty("java.io.tmpdir");
     private final String testFolderName = this.getClass().getSimpleName();
@@ -42,6 +51,18 @@ public class FileServiceTest {
     public void setUp() throws Exception {
         final File currTestFile = this.testFileFolder.resolve(this.testFileName).toFile();
         FileUtils.write(currTestFile, "This is a normal test file");
+
+        this.stdout = System.out;
+        this.outStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(this.outStream));
+
+        Logger rootLogger = Logger.getRootLogger();
+        rootLogger.setLevel(Level.INFO);
+        rootLogger.addAppender(
+                new ConsoleAppender(
+                        new PatternLayout("[%-5p] %m%n")
+                )
+        );
     }
 
     /**
@@ -50,6 +71,8 @@ public class FileServiceTest {
      */
     @After
     public void tearDown() throws Exception {
+        System.setOut(this.stdout);
+
         if (Files.exists(this.testFileFolder)) {
             FileUtils.deleteDirectory(this.testFileFolder.toFile());
         }
@@ -126,7 +149,9 @@ public class FileServiceTest {
     @Test
     public void testCreateTimeStampBackupFile() throws Exception {
         final String timeStamp = "yyyyMMddHH";
+        final String errorMessage = "FileAlreadyExistsException";
         final Path mainPath = this.testFileFolder.resolve(this.testFileName);
+
         assertThat(FileService.createTimeStampBackupFile(mainPath.toString(), timeStamp))
                 .isTrue();
 
@@ -139,6 +164,7 @@ public class FileServiceTest {
         // Check that a backup file with the same filename cannot be created.
         assertThat(FileService.createTimeStampBackupFile(mainPath.toString(), timeStamp))
                 .isFalse();
+        assertThat(this.outStream.toString()).contains(errorMessage);
     }
 
 }

@@ -16,6 +16,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Locale;
 import java.util.Set;
+import org.apache.log4j.Logger;
 
 /**
  * Main service class for dealing with files.
@@ -23,6 +24,11 @@ import java.util.Set;
  * @author Michael Sonntag (sonntag@bio.lmu.de)
  */
 public final class FileService {
+    /**
+     * Access to the main LOGGER.
+     */
+    private static final Logger LOGGER = Logger.getLogger(FileService.class.getName());
+
     /**
      * Method for validating that the provided file is of a supported file extension.
      * @param checkFile Filename of the provided file.
@@ -46,7 +52,7 @@ public final class FileService {
      * Method for validating that the provided file is of a supported file extension.
      * @param checkFile Filename of the provided file.
      * @param fileExtension String containing the supported file extension.
-     * @return True if the file end with the supported file extension, false otherwise.
+     * @return True if the file ends with the supported file extension, false otherwise.
      */
     public static boolean checkFileExtension(final String checkFile, final String fileExtension) {
 
@@ -77,7 +83,8 @@ public final class FileService {
         try {
             Files.copy(mainPath, Paths.get(backupPath));
         } catch (IOException e) {
-            e.printStackTrace();
+            FileService.LOGGER.error(e.toString());
+            FileService.LOGGER.error(e.getMessage());
             return false;
         }
         return true;
