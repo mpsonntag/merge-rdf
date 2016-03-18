@@ -17,9 +17,9 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.g_node.micro.commons.CliToolController;
-import org.g_node.micro.rdf.RdfFileServiceJena;
 import org.g_node.srv.CliOptionService;
 import org.g_node.srv.CtrlCheckService;
+import org.g_node.srv.RdfServiceSwitch;
 
 /**
  * Class handling validating commandline input and handling the merging of RDF documents
@@ -89,8 +89,8 @@ public class LktCliController implements CliToolController {
      */
     public final void run(final CommandLine cmd) {
 
-        final Set<String> rdfFormatsKeyMap = RdfFileServiceJena.RDF_FORMAT_MAP.keySet();
-        final Map<String, String> rdfFormatExtensionMap = RdfFileServiceJena.RDF_FORMAT_EXTENSION;
+        final Set<String> rdfFormatsKeyMap = RdfServiceSwitch.RDF_FORMAT_MAP_KEYS;
+        final Map<String, String> rdfFormatExtensionMap = RdfServiceSwitch.RDF_FORMAT_EXTENSION;
 
         final String mergeFile = cmd.getOptionValue("i");
         if (!CtrlCheckService.isExistingFile(mergeFile)) {
@@ -112,11 +112,11 @@ public class LktCliController implements CliToolController {
             outputFile = String.join("", outputFile, ".", rdfFormatExtensionMap.get(outputFormat));
         }
 
-        if (!RdfFileServiceJena.isValidRdfFile(mainFile) || !RdfFileServiceJena.isValidRdfFile(mergeFile)) {
+        if (!RdfServiceSwitch.isValidRdfFile(mainFile) || !RdfServiceSwitch.isValidRdfFile(mergeFile)) {
             return;
         }
 
-        LktJenaMerger.mergeAndSave(mainFile, mergeFile, outputFile, outputFormat);
+        RdfServiceSwitch.runMerger(mainFile, mergeFile, outputFile, outputFormat);
     }
 
 }
