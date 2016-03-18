@@ -17,7 +17,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Locale;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.ConsoleAppender;
@@ -30,7 +29,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Unit tests for the LktCliController class. Output and Error streams are redirected
+ * Unit tests for the {@link LktCliController} class. Output and Error streams are redirected
  * from the console to a different PrintStream and reset after tests are finished
  * to avoid mixing tool error messages with actual test error messages.
  *
@@ -42,7 +41,7 @@ public class LktCliControllerTest {
     private PrintStream stdout;
 
     private final String tmpRoot = System.getProperty("java.io.tmpdir");
-    private final String testFolderName = "LktCliControllerTest";
+    private final String testFolderName = this.getClass().getSimpleName();
     private final Path testFileFolder = Paths.get(tmpRoot, testFolderName);
     private final File testRdfFile = this.testFileFolder.resolve("test.ttl").toFile();
 

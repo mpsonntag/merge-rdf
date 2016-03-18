@@ -10,15 +10,15 @@
 
 package org.g_node.micro.rdf;
 
-import java.net.URL;
-import java.nio.file.Paths;
-import static org.assertj.core.api.Assertions.assertThat;
 import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.vocabulary.RDFS;
+import java.net.URL;
+import java.nio.file.Paths;
+import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Before;
 import org.junit.Test;
 

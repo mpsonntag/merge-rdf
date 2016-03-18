@@ -12,19 +12,18 @@ package org.g_node;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-import static org.assertj.core.api.Assertions.assertThat;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
+import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Unit tests for the main App. Output and Error streams are redirected
- * from the console to a different PrintStream and reset after tests are finished
- * to avoid mixing tool error messages with actual test error messages.
+ * Unit tests for the main {@link App}. The output stream is redirected from the console to a different PrintStream
+ * and reset after tests are finished to avoid mixing tool error messages with actual test error messages.
  *
  * @author Michael Sonntag (sonntag@bio.lmu.de)
  */
@@ -35,7 +34,7 @@ public class AppTest {
     private String tool = "lkt";
 
     /**
-     * Redirect Error and Out stream.
+     * Redirect Out stream and setup the main logger.
      * @throws Exception
      */
     @Before

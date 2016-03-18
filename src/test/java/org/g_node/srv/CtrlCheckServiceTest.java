@@ -31,16 +31,17 @@ import org.junit.Test;
  * @author Michael Sonntag (sonntag@bio.lmu.de)
  */
 public class CtrlCheckServiceTest {
+
     private ByteArrayOutputStream outStream = new ByteArrayOutputStream();
     private PrintStream stdout;
 
     private final String tmpRoot = System.getProperty("java.io.tmpdir");
-    private final String testFolderName = "ctrlCheckServiceTest";
+    private final String testFolderName = this.getClass().getSimpleName();
     private final String testFileName = "test.txt";
     private final Path testFileFolder = Paths.get(tmpRoot, testFolderName);
 
     /**
-     * Create a test folder and the main test file in the java temp directory.
+     * * Redirect the out stream, create a temporary folder and the main test file in the java temp directory.
      * @throws Exception
      */
     @Before
@@ -67,9 +68,8 @@ public class CtrlCheckServiceTest {
     }
 
     /**
-     * Test if the method returns false when presented with a
-     * String referencing a non existing file and returns true if it is
-     * presented with String referencing an existing file.
+     * Test if the method returns false when presented with a String referencing a non existing file and
+     * returns true if it is presented with String referencing an existing file.
      * @throws Exception
      */
     @Test
@@ -90,8 +90,7 @@ public class CtrlCheckServiceTest {
     }
 
     /**
-     * Test that the method prints the correct error message if a given String is not
-     * found in a given Set.
+     * Test that the method prints the correct error message if a given String is not found in a given Set.
      * @throws Exception
      */
     @Test

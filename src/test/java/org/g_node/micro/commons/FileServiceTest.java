@@ -15,9 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
-import java.util.List;
 import java.util.Set;
-
 import org.apache.commons.io.FileUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.After;
@@ -32,7 +30,7 @@ import org.junit.Test;
 public class FileServiceTest {
 
     private final String tmpRoot = System.getProperty("java.io.tmpdir");
-    private final String testFolderName = "fileServiceTest";
+    private final String testFolderName = this.getClass().getSimpleName();
     private final String testFileName = "test.txt";
     private final Path testFileFolder = Paths.get(tmpRoot, testFolderName);
 

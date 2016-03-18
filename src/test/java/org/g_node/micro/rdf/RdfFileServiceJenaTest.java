@@ -46,12 +46,12 @@ public class RdfFileServiceJenaTest {
     private PrintStream stdout;
 
     private final String tmpRoot = System.getProperty("java.io.tmpdir");
-    private final String testFolderName = "rdfServiceTest";
+    private final String testFolderName = this.getClass().getSimpleName();
     private final Path testFileFolder = Paths.get(tmpRoot, testFolderName);
 
     /**
-     * Redirect Out stream and create a test folder and the main
-     * test file in the java temp directory.
+     * Redirect Out stream, create a test folder and the main test file in the java temp directory and
+     * set up the main logger.
      * @throws Exception
      */
     @Before
@@ -75,8 +75,7 @@ public class RdfFileServiceJenaTest {
     }
 
     /**
-     * Reset Out stream to the console and remove all created
-     * folders and files after the tests are done.
+     * Reset Out stream to the console and remove all created folders and files after the tests are done.
      * @throws Exception
      */
     @After
@@ -90,7 +89,7 @@ public class RdfFileServiceJenaTest {
     }
 
     /**
-     * Check, that a Jena RDF model is written to file.
+     * Check that a Jena RDF model is written to file.
      * @throws Exception
      */
     @Test
@@ -196,6 +195,10 @@ public class RdfFileServiceJenaTest {
         }
     }
 
+    /**
+     * Test that the method checking if a file is valid RDF file works properly.
+     * @throws Exception
+     */
     @Test
     public void testIsValidRdfFile() throws Exception {
 

@@ -32,7 +32,7 @@ import org.junit.Test;
 public class LktMergerJenaTest {
 
     private final String tmpRoot = System.getProperty("java.io.tmpdir");
-    private final String testFolderName = "LktMergerJena";
+    private final String testFolderName = this.getClass().getSimpleName();
     private final Path testFileFolder = Paths.get(tmpRoot, testFolderName);
     private final String testMainRdfFileName = "testMain.ttl";
     private final File testMainRdfFile = this.testFileFolder.resolve(this.testMainRdfFileName).toFile();
