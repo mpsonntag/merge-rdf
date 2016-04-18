@@ -121,9 +121,6 @@ public final class RdfFileServiceJena {
         TypedInputStream in = null;
         try {
             in = RDFDataMgr.open(uri, context);
-            if (in == null) {
-                throw new RiotException(String.join("", "Not found: ", uri));
-            }
 
             final ContentType ct = WebContent.determineCT(in.getContentType(), hintLang, base);
             if (ct == null) {
