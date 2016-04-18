@@ -131,12 +131,11 @@ public final class RdfFileServiceJena {
             }
 
             final Lang lang = RDFLanguages.contentTypeToLang(ct);
+            final ReaderRIOTFactory r = RDFParserRegistry.getFactory(lang);
             ReaderRIOT reader = null;
-            if (lang != null) {
-                final ReaderRIOTFactory r = RDFParserRegistry.getFactory(lang);
-                if (r != null) {
-                    reader = r.create(lang);
-                }
+
+            if (r != null) {
+                reader = r.create(lang);
             }
 
             if (reader == null) {
