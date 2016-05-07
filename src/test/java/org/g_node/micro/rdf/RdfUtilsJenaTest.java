@@ -16,10 +16,13 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.vocabulary.RDFS;
-import java.net.URL;
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import org.apache.commons.io.FileUtils;
 import static org.assertj.core.api.Assertions.assertThat;
-import org.junit.Before;
+import org.junit.After;
 import org.junit.Test;
 
 /**
@@ -29,11 +32,20 @@ import org.junit.Test;
  */
 public class RdfUtilsJenaTest {
 
-    private Model baseModel;
+    private final String tmpRoot = System.getProperty("java.io.tmpdir");
+    private final String testFolderName = this.getClass().getSimpleName();
+    private final Path testFileFolder = Paths.get(tmpRoot, testFolderName);
 
-    @Before
-    public void setUp() {
-        this.baseModel = ModelFactory.createDefaultModel();
+    /**
+     * Remove all created folders and files after the tests are done.
+     * @throws Exception
+     */
+    @After
+    public void tearDown() throws Exception {
+
+        if (Files.exists(this.testFileFolder)) {
+            FileUtils.deleteDirectory(this.testFileFolder.toFile());
+        }
     }
 
     /**
@@ -63,34 +75,53 @@ public class RdfUtilsJenaTest {
                 .isEqualTo(String.join("", s, "^^", RdfConstants.RDF_NS_XSD, "string"));
     }
 
+    /**
+     * Method tests that all properties are removed from all anonymous nodes of a model.
+     * @throws Exception
+     */
     @Test
     public void testRemoveAnonProperties() throws Exception {
-        // TODO replace test file with a dynamically created file
-        final URL testFileNameURL = this.getClass().getResource("/testFiles/RemoveAnonNodeTest.ttl");
-        final String testFileName = Paths.get(testFileNameURL.toURI()).toFile().toString();
 
-        this.baseModel = RdfFileServiceJena.openModelFromFile(testFileName);
+        final String rdfFileContent = String.join("",
+                "@prefix res:   <http://test.org/testResource/> .\n" +
+                        "@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .\n" +
+                        "@prefix xs:    <http://www.w3.org/2001/XMLSchema#> .\n" +
+                        "\n" +
+                        "res:RootID\n" +
+                        "        res:hasDeleteAnonPropsTestNode    res:TestID .\n" +
+                        "\n" +
+                        "res:TestID\n" +
+                        "\t\ta\t\t\t\t\t\tres:DeleteAnonPropsTestNode ;\n" +
+                        "\t\trdfs:label              \"AnonNodeTest\" ;\n" +
+                        "        rdfs:comment            \"test comment\"^^xs:string ;\n" +
+                        "        res:hasAnonNode         [ res:hasAnonProperty   \"Anon property literal 1\"^^xs:string ;\n" +
+                        "                                   res:hasAnonProperty   \"Anon property literal 2\"^^xs:string ];\n" +
+                        "        res:hasAnonNode         [ res:hasAnonProperty   \"Anon property literal 3\"^^xs:string ;\n" +
+                        "                                   res:hasAnonProperty   \"Anon property literal 4\"^^xs:string\n" +
+                        "                                ] .\n"
+        );
 
-        assertThat(this.baseModel.size()).isEqualTo(7);
+        final File testFile = this.testFileFolder.resolve("tmp.ttl").toFile();
+        FileUtils.write(testFile, rdfFileContent);
 
-        this.baseModel.listObjects().forEachRemaining(
+        Model m = RdfFileServiceJena.openModelFromFile(testFile.getAbsolutePath());
+
+        assertThat(m.size()).isEqualTo(10);
+
+        m.listObjects().forEachRemaining(
                 obj -> {
                     if (obj.isURIResource() && obj.asResource().listProperties().hasNext()) {
                         RdfUtilsJena.removeAnonProperties(obj.asResource().listProperties());
                     }
                 });
 
-        assertThat(this.baseModel.size()).isEqualTo(5);
+        assertThat(m.size()).isEqualTo(6);
     }
 
     @Test
     public void testRemovePropertiesFromModel() throws Exception {
         // TODO implement test
         System.out.println("TODO implement testRemovePropertiesFromModel");
-        System.out.println(
-                String.join("", "[TEST DEBUG] Remove properties; Model size: ",
-                        Long.toString(this.baseModel.size()))
-        );
     }
 
 }
